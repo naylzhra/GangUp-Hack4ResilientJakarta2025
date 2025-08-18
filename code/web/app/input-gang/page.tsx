@@ -67,7 +67,7 @@ export default function BedahGangPage() {
   return (
     <div className="min-h-dvh bg-[#364C84] text-slate-900">
       <div className="mx-auto max-w-[420px] px-4 py-6">
-        <div className="rounded-2xl bg-[#364C84] shadow-xl ring-1 ring-black/5">
+        <div className="rounded-2xl bg-[#364C84] ring- ">
           {/* Header */}
           <div className="rounded-t-2xl bg-[#364C84] px-6 pt-6 pb-5 text-center">
             <h1 className="text-xl font-semibold tracking-wide text-white">

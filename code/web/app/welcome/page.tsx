@@ -14,7 +14,7 @@ const MOCK_DATA: PageData = {
     kelKec: "Kelurahan, Kecamatan",
     kabKota: "Kabupaten/Kota",
   },
-  routes: { confirmPath: "/konfirmasi", fixPath: "/perbaiki-lokasi" },
+  routes: { confirmPath: "/input-gang?step=2", fixPath: "/input-gang?step=1" },
 };
 
 export default function LocationConfirmPage() {
