@@ -1,14 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const DEFAULT_KELURAHAN = "Duren Sawit";
+
+type RiskResponse = {
+  kelurahan: string;
+  score?: number | null;
+  properties: Record<string, any>;
+};
+
+function scoreToCategory(score?: number | null): string {
+  if (score == null) return "-";
+  if (score <= 2) return "Rendah";
+  if (score === 3) return "Sedang";
+  if (score === 4) return "Tinggi";
+  return "Sangat Tinggi";
+}
 
 export default function HasilPage() {
-  // dummy data 
   const curahHujan = 84;
-  const risiko = "Tinggi";
   const alamat = {
     line1: "Jl. Melati No. 80",
     line2: "Kelurahan, Kecamatan, Kabupaten/Kota",
+  };
+
+  const [kelurahan] = useState<string>(DEFAULT_KELURAHAN);
+
+  // Remote data
+  const [risk, setRisk] = useState<RiskResponse | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/risk?kelurahan=${encodeURIComponent(kelurahan)}`,
+          { cache: "no-store" }
+        );
+        if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
+        const data: RiskResponse = await res.json();
+        if (alive) setRisk(data);
+      } catch (e: any) {
+        console.log(e);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [kelurahan]);
+
+  const onDownloadPdf = async () => {
+    try {
+      const res = await fetch(`/api/guidebook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kelurahan,
+          width_m: 2.5,
+          length_m: 120,
+          project_name: "BedahGang – Paket 1",
+        }),
+      });
+      if (!res.ok) throw new Error("Gagal membuat PDF");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Guidebook_${kelurahan.replace(/\s+/g, "_")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      alert(e?.message ?? "Gagal mengunduh PDF");
+    }
   };
 
   return (
@@ -39,7 +103,7 @@ export default function HasilPage() {
             <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
               <div className="text-xs text-[#6F7BA6]">Risiko Banjir</div>
               <div className="mt-1 text-3xl font-extrabold text-[#2E4270]">
-                {risiko}
+                {scoreToCategory(risk?.score)}
               </div>
               <div className="mt-1 text-[11px] text-[#6F7BA6]">Baca lebih jauh ▾</div>
             </div>
@@ -81,7 +145,7 @@ export default function HasilPage() {
               3D model
               <span className="pointer-events-none absolute left-3 top-3 h-[calc(100%-24px)] w-[calc(100%-24px)]">
                 <svg viewBox="0 0 100 100" className="h-full w-full opacity-40">
-\
+                  \
                 </svg>
               </span>
             </div>
@@ -104,7 +168,6 @@ export default function HasilPage() {
   );
 }
 
-/* ----- Read more / less component ----- */
 function ReadMore({
   children,
   className,
@@ -116,7 +179,6 @@ function ReadMore({
 }) {
   const [open, setOpen] = useState(false);
 
-  // Inline clamp (no Tailwind plugin needed)
   const clampStyle = !open
     ? ({
         display: "-webkit-box",
