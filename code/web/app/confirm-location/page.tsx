@@ -4,7 +4,7 @@ import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const LeafletMap = dynamic(() => import("../components/LeafletMap"), {
+const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
   ssr: false,
   loading: () => (
     <div className="h-64 w-full animate-pulse rounded-2xl bg-slate-200" />
