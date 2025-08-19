@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
+import { buildAddressString, geocodeAddress, type AddressParts, type Geo, } from "../_utils/geocode";
 
 const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
   ssr: false,
@@ -12,8 +13,6 @@ const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
 });
 
 const STORAGE_KEY = "bedahgang";
-
-type Geo = { lat: number; lng: number; accuracy?: number };
 
 type PageData = {
   location: { alamat: string; kelKec: string; kabKota: string };
@@ -73,11 +72,11 @@ export default function BedahGangPage() {
   const initialStep = Number(search.get("step")) === 2 ? 2 : 1;
   const [step, setStep] = useState<1 | 2>(initialStep);
 
-  const latQ = useSearchParams().get("lat");
-  const lngQ = useSearchParams().get("lng");
-  const accQ = useSearchParams().get("acc");
+  const latQ = search.get("lat");
+  const lngQ = search.get("lng");
+  const accQ = search.get("acc");
 
-  const coords: Geo | null = useMemo(() => {
+    const coords: Geo | null = useMemo(() => {
     if (!latQ || !lngQ) return null;
     const lat = Number(latQ);
     const lng = Number(lngQ);
@@ -103,7 +102,7 @@ export default function BedahGangPage() {
   const [aktivitas, setAktivitas] = useState<Set<string>>(new Set());
 
   const lebarLabel = useMemo(() => `${LEBAR_OPTS[lebarIdx].toFixed(1)} m`, [lebarIdx]);
-  useEffect(() => {
+    useEffect(() => {
     const saved = loadSession<any>();
     if (!saved) return;
 
@@ -124,7 +123,7 @@ export default function BedahGangPage() {
     if (Array.isArray(saved.aktivitas))
       setAktivitas(new Set<string>(saved.aktivitas));
   }, []);
-  
+
   function toggleAkt(k: string) {
     setAktivitas((prev) => {
       const next = new Set(prev);
@@ -139,11 +138,13 @@ export default function BedahGangPage() {
       alert("Pilih Kabupaten/Kota, Kecamatan, dan Kelurahan terlebih dahulu.");
       return;
     }
+
     saveSession({
       ...(loadSession() ?? {}),
       coords,
       alamat: addr,
     });
+
     setStep(2);
   }
 
@@ -159,6 +160,7 @@ export default function BedahGangPage() {
     saveSession(payload);
     console.log("Final payload =>", payload);
     router.push("/result");
+    // TODO: send to API / navigate to success page
   }
 
   return (
@@ -357,6 +359,7 @@ export default function BedahGangPage() {
                     <button
                       type="submit"
                       className="mt-6 w-60 rounded-full bg-[#3A54A0] px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#344C90] active:scale-[0.99]"
+                      onClick={ () => router.push("/result") }
                     >
                       Konfirmasi Dimensi Gang
                     </button>
