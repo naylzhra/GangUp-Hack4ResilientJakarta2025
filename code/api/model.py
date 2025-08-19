@@ -15,3 +15,14 @@ class RiskByNameResponse(BaseModel):
     score: Optional[int] = None
     # category: Optional[str] = None
     properties: Dict[str, Any] = {}
+
+class GuidebookParams(BaseModel):
+    kelurahan: str
+    width_m: float
+    length_m: float
+    project_name: Optional[str] = "Gang Improvement"
+    # Optional fine-tuning (defaults are provided if omitted)
+    unit_cost_paving_idr_m2: Optional[int] = None
+    unit_cost_drain_clean_idr_m: Optional[int] = None
+    crew_prod_paving_m2_per_day: Optional[int] = None
+    crew_prod_drain_m_per_day: Optional[int] = None
