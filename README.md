@@ -1,4 +1,4 @@
-# hack4resilient
+3# hack4resilient
 
 ## Installing / Getting started
 Anda perlu menginstall pip dan Node.js.
@@ -13,13 +13,13 @@ npm i react-leaflet leaflet
 Buka 2 terminal.
 Di terminal pertama, navigasi ke folder backend, lalu jalankan API.
 ```shell
-cd src/backend
+cd code/api
 uvicorn app:app --reload
 ```
 Di terminal ke dua, navigasi ke folder frontend, lalu jalankan interface.
 
 ```shell
-cd src/frontend
+cd code/web
 npm run dev
 ```
 Jika port tidak terpakai, website akan dijalankan di http://localhost:3000. CTRL+klik link tersebut di terminal Anda. 
