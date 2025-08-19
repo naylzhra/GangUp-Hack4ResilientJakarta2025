@@ -143,10 +143,6 @@ export default function BedahGangPage() {
                   {/* Address fields */}
                   <div className="mt-5 space-y-4">
 
-                    <div className="text-xs text-slate-600 mt-1">
-                      Kota: {kotaList.length} | Kec: {kecList.length} | Kel: {kelList.length}
-                    </div>
-
                     {/* CSV status (optional) */}
                     {optLoading && <div className="mt-2 text-xs text-slate-600">Memuat daftar wilayah…</div>}
                     {optError && <div className="mt-2 text-xs text-rose-600">{optError}</div>}
@@ -407,47 +403,6 @@ function Field(props: {
     </label>
   );
 }
-
-// function SelectField(props: {
-//   className?: string;
-//   label: string;
-//   value: string;
-//   onChange: (v: string) => void;
-//   options: { label: string; value: string }[];
-// }) {
-//   const id = props.label.toLowerCase().replace(/\s+/g, "-");
-//   return (
-//     <div className={props.className}>
-//       <label htmlFor={id} className="mb-1 block text-sm font-medium text-[#2E4270]">
-//         {props.label}
-//       </label>
-
-//       <div className="relative">
-//         <select
-//           id={id}
-//           value={props.value}
-//           onChange={(e) => props.onChange(e.target.value)}
-//           className="w-full appearance-none rounded-full border border-[#2E4270]/40 bg-white px-4 py-2.5 pr-10 text-sm text-slate-900 outline-none focus:border-[#2E4270] focus:ring-2 focus:ring-[#2E4270]/30"
-//         >
-//           {props.options.map((o) => (
-//             <option key={o.value} value={o.value}>
-//               {o.label}
-//             </option>
-//           ))}
-//         </select>
-
-//         {/* Chevron */}
-//         <svg
-//           aria-hidden="true"
-//           viewBox="0 0 20 20"
-//           className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 opacity-70"
-//         >
-//           <path d="M5 7l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" />
-//         </svg>
-//       </div>
-//     </div>
-//   );
-// }
 
 function RoundBtn({
   children,
