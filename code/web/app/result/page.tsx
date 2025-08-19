@@ -12,12 +12,12 @@ export default function HasilPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#FFFDF5] text-[#2E4270]">
-      <div className="mx-auto max-w-[420px]">
+    <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
+      <div className="mx-auto max-w-[420px] px-4 py-6">
         {/* Top banner (hijau muda) */}
-        <section className="rounded-b-[28px] bg-[#E4F28F] px-5 pb-5 pt-8">
-          <h1 className="text-center text-2xl font-semibold text-[#2E4270]">
-            Bedah<span className="font-extrabold">Gang</span>
+        <section className="rounded-t-2xl bg-[#E4F28F] px-6 pt-6 pb-5 text-center">
+          <h1 className="text-center text-[20px] font-semibold text-[#364C84]">
+            Bedah<span className="text-[20px] font-extrabold">Gang</span>
           </h1>
 
           {/* Alamat pill */}
@@ -28,7 +28,7 @@ export default function HasilPage() {
 
           {/* Curah hujan & risiko */}
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-[#2E4270] px-4 py-3 text-white shadow-sm">
+            <div className="rounded-2xl bg-[#364C84] px-4 py-3 text-white shadow-sm">
               <div className="text-xs opacity-90">Curah Hujan</div>
               <div className="mt-2 text-4xl font-extrabold leading-none">
                 {curahHujan}

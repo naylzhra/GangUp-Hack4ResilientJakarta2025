@@ -2,6 +2,31 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full animate-pulse rounded-2xl bg-slate-200" />
+  ),
+});
+
+
+type Geo = { lat: number; lng: number; accuracy?: number };
+
+type PageData = {
+  location: { alamat: string; kelKec: string; kabKota: string };
+  routes: { confirmPath: string; fixPath: string };
+};
+
+const MOCK_DATA: PageData = {
+  location: {
+    alamat: "Jl. Melati No. 80",
+    kelKec: "Kelurahan, Kecamatan",
+    kabKota: "Kabupaten/Kota",
+  },
+  routes: { confirmPath: "/input-gang?step=2", fixPath: "/input-gang?step=1" },
+};
 
 /* ---------- Types & constants ---------- */
 type Permukaan = "beton" | "aspal" | "tanah";
@@ -16,6 +41,24 @@ export default function BedahGangPage() {
 
   const initialStep = Number(search.get("step")) === 2 ? 2 : 1;
   const [step, setStep] = useState<1 | 2>(initialStep);
+
+  const latQ = useSearchParams().get("lat");
+  const lngQ = useSearchParams().get("lng");
+  const accQ = useSearchParams().get("acc");
+
+  const coords: Geo | null = useMemo(() => {
+    if (!latQ || !lngQ) return null;
+    const lat = Number(latQ);
+    const lng = Number(lngQ);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    const accuracy = accQ ? Number(accQ) : undefined;
+    return { lat, lng, accuracy };
+  }, [latQ, lngQ, accQ]);
+
+  const center: Geo = useMemo(
+    () => coords ?? { lat: -6.2, lng: 106.816666 },
+    [coords]
+  );
 
   useEffect(() => {
     const qp = new URLSearchParams(Array.from(search.entries()));
@@ -81,25 +124,23 @@ export default function BedahGangPage() {
             {step === 1 ? (
               <div className="mx-3 rounded-2xl bg-[#FFFDF5] px-5 py-5">
                 <form onSubmit={submitAddress}>
-                  {/* Map placeholder container */}
-                  <div className="rounded-2xl border border-slate-200 bg-slate-200/60 p-3">
-                    <div
-                      id="map-container"
-                      role="application"
-                      aria-label="Map placeholder"
-                      className="grid h-56 w-full place-items-center rounded-xl border-2 border-dashed border-slate-300 text-slate-600"
-                    >
-                      map
-                    </div>
+                  <div className="rounded-2xl border border-slate-200 bg-slate-200/60 p-3 h-[24vh] w-full">
+                    <LeafletMap center={center} user={coords} zoomWhenUser={16} />
                   </div>
 
                   {/* Address fields */}
                   <div className="mt-5 space-y-4">
                     <Field
-                      label="Alamat"
-                      placeholder="Jl. Melati No. 80"
-                      value={addr.alamat}
-                      onChange={(v) => setAddr((a) => ({ ...a, alamat: v }))}
+                      label="Kabupaten/Kota"
+                      placeholder="Kota Kabupaten"
+                      value={addr.kabupatenKota}
+                      onChange={(v) => setAddr((a) => ({ ...a, kabupatenKota: v }))}
+                    />
+                     <Field
+                      label="Kecamatan"
+                      placeholder="Kecamatan"
+                      value={addr.kecamatan}
+                      onChange={(v) => setAddr((a) => ({ ...a, kecamatan: v }))}
                     />
                     <Field
                       label="Kelurahan"
@@ -108,16 +149,10 @@ export default function BedahGangPage() {
                       onChange={(v) => setAddr((a) => ({ ...a, kelurahan: v }))}
                     />
                     <Field
-                      label="Kecamatan"
-                      placeholder="Kecamatan"
-                      value={addr.kecamatan}
-                      onChange={(v) => setAddr((a) => ({ ...a, kecamatan: v }))}
-                    />
-                    <Field
-                      label="Kabupaten/Kota"
-                      placeholder="Kota Kabupaten"
-                      value={addr.kabupatenKota}
-                      onChange={(v) => setAddr((a) => ({ ...a, kabupatenKota: v }))}
+                      label="Alamat"
+                      placeholder="Jl. Melati No. 80"
+                      value={addr.alamat}
+                      onChange={(v) => setAddr((a) => ({ ...a, alamat: v }))}
                     />
                   </div>
 
@@ -240,6 +275,7 @@ export default function BedahGangPage() {
                     <button
                       type="submit"
                       className="mt-6 w-60 rounded-full bg-[#3A54A0] px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#344C90] active:scale-[0.99]"
+                      onClick={ () => router.push("/result") }
                     >
                       Konfirmasi Dimensi Gang
                     </button>
