@@ -2,11 +2,16 @@ from __future__ import annotations
 import os
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from typing import Optional, List
 
 from model import settings, RiskByNameResponse, GuidebookParams
 from fastapi.responses import FileResponse
 from pathlib import Path
 from utils import load_geojson, estimate_plan, build_guidebook_pdf
+
+
+from model import DesignRequest, DesignResponse, DesignRule
+from utils import load_matrix, choose_rule
 
 app = FastAPI(title="Flood Risk (name-based)", version="1.0.0")
 
@@ -44,6 +49,33 @@ def risk_by_name(kelurahan: str = Query(..., description="exact kelurahan displa
         # category=category,
         properties=props,
     )
+
+@app.get(f"{settings.API_PREFIX}/design-matrix", response_model=List[DesignRule])
+def list_matrix():
+    return load_matrix()
+
+@app.post(f"{settings.API_PREFIX}/design-solution", response_model=DesignResponse)
+def design_solution(payload: DesignRequest):
+    rule, how, dbg = choose_rule(payload)
+    return DesignResponse(designModule=rule.designModule, matchedRule=rule, matchedBy=how, debug=dbg)
+
+@app.get(f"{settings.API_PREFIX}/design-solution", response_model=DesignResponse)
+def design_solution_get(
+    lebar: float = Query(...),
+    surface: str = Query(..., regex="^(beton|aspal|tanah)$"),
+    drainage: bool = Query(...),
+    highFloodRisk: bool = Query(...),
+    activity: str = Query(..., description="CSV, e.g. anak,orang"),
+):
+    payload = DesignRequest(
+        lebar=lebar,
+        surface=surface,
+        drainage=drainage,
+        highFloodRisk=highFloodRisk,
+        activity=[s.strip() for s in activity.split(",")],
+    )
+    rule, how, dbg = choose_rule(payload)
+    return DesignResponse(designModule=rule.designModule, matchedRule=rule, matchedBy=how, debug=dbg)
 
 @app.post(f"{settings.API_PREFIX}/reload")
 def reload_index():
