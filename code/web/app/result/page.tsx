@@ -1,13 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
+const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
 
 type RiskResponse = {
   kelurahan: string;
   score?: number | null;
   properties: Record<string, any>;
+};
+
+type SavedPayload = {
+  coords?: { lat: number; lng: number; accuracy?: number } | null;
+  alamat: {
+    alamat: string;
+    kelurahan: string;
+    kecamatan: string;
+    kabupatenKota: string;
+  };
+  lebar: number;
+  permukaan: string;
+  drainase: string;
+  aktivitas: string[];
 };
 
 function scoreToCategory(score?: number | null): string {
@@ -19,13 +34,32 @@ function scoreToCategory(score?: number | null): string {
 }
 
 export default function HasilPage() {
-  const curahHujan = 84;
-  const alamat = {
-    line1: "Jl. Melati No. 80",
-    line2: "Kelurahan, Kecamatan, Kabupaten/Kota",
-  };
+  const [saved, setSaved] = useState<SavedPayload | null>(null);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (raw) setSaved(JSON.parse(raw));
+    } catch {
+      // ignore
+    }
+  }, []);
 
-  const [kelurahan] = useState<string>(DEFAULT_KELURAHAN);
+  const kelurahan = saved?.alamat?.kelurahan?.trim() || DEFAULT_KELURAHAN;
+  const curahHujan = 84;
+  const alamat = useMemo(
+    () => ({
+      line1: saved?.alamat?.alamat?.trim() || "Jl. Melati No. 80",
+      line2:
+        [
+          saved?.alamat?.kelurahan || "Kelurahan",
+          saved?.alamat?.kecamatan || "Kecamatan",
+          saved?.alamat?.kabupatenKota || "Kabupaten/Kota",
+        ]
+          .filter(Boolean)
+          .join(", "),
+    }),
+    [saved]
+  );
 
   // Remote data
   const [risk, setRisk] = useState<RiskResponse | null>(null);

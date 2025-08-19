@@ -11,6 +11,7 @@ const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
   ),
 });
 
+const STORAGE_KEY = "bedahgang";
 
 type Geo = { lat: number; lng: number; accuracy?: number };
 
@@ -34,7 +35,21 @@ type Drainase = "ada" | "tidak ada";
 const LEBAR_OPTS = [1, 1.5, 2, 2.5] as const;
 const AKTIVITAS = ["sosial", "komersial", "anak", "kendaraan", "orang", "campuran"] as const;
 
-/* ---------- Page ---------- */
+function saveSession(payload: any) {
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {}
+}
+
+function loadSession<T = any>(): T | null {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function BedahGangPage() {
   const router = useRouter();
   const search = useSearchParams();
@@ -80,7 +95,28 @@ export default function BedahGangPage() {
   const [aktivitas, setAktivitas] = useState<Set<string>>(new Set());
 
   const lebarLabel = useMemo(() => `${LEBAR_OPTS[lebarIdx].toFixed(1)} m`, [lebarIdx]);
+  useEffect(() => {
+    const saved = loadSession<any>();
+    if (!saved) return;
 
+    if (saved.alamat) {
+      setAddr({
+        alamat: saved.alamat.alamat ?? "",
+        kelurahan: saved.alamat.kelurahan ?? "",
+        kecamatan: saved.alamat.kecamatan ?? "",
+        kabupatenKota: saved.alamat.kabupatenKota ?? "",
+      });
+    }
+    if (typeof saved.lebar === "number") {
+      const idx = LEBAR_OPTS.findIndex((v) => v === saved.lebar);
+      if (idx >= 0) setLebarIdx(idx);
+    }
+    if (saved.permukaan) setPermukaan(saved.permukaan);
+    if (saved.drainase) setDrainase(saved.drainase);
+    if (Array.isArray(saved.aktivitas))
+      setAktivitas(new Set<string>(saved.aktivitas));
+  }, []);
+  
   function toggleAkt(k: string) {
     setAktivitas((prev) => {
       const next = new Set(prev);
@@ -91,6 +127,11 @@ export default function BedahGangPage() {
 
   function submitAddress(e: FormEvent) {
     e.preventDefault();
+    saveSession({
+      ...(loadSession() ?? {}),
+      coords,
+      alamat: addr,
+    });
     setStep(2);
   }
 
@@ -103,8 +144,9 @@ export default function BedahGangPage() {
       drainase,
       aktivitas: Array.from(aktivitas),
     };
+    saveSession(payload);
     console.log("Final payload =>", payload);
-    // TODO: send to API / navigate to success page
+    router.push("/result");
   }
 
   return (
@@ -275,7 +317,6 @@ export default function BedahGangPage() {
                     <button
                       type="submit"
                       className="mt-6 w-60 rounded-full bg-[#3A54A0] px-5 py-3 text-sm font-semibold text-white shadow transition hover:bg-[#344C90] active:scale-[0.99]"
-                      onClick={ () => router.push("/result") }
                     >
                       Konfirmasi Dimensi Gang
                     </button>
