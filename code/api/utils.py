@@ -1,14 +1,47 @@
 from __future__ import annotations
-import json
+import json, os
 import math
+from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Iterable
+from model import DesignRule, Surface
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 import io
 
+MATRIX_PATH: Path = Path(__file__).resolve().parents[2] / "data" / "design_matrix.json"
+
+@lru_cache(maxsize=1)
+def load_matrix() -> List[DesignRule]:
+    with open(MATRIX_PATH, "r", encoding="utf-8") as f:
+        rows = json.load(f)
+
+    normed: List[DesignRule] = []
+    for r in rows:
+        lebar = float(r.get("Lebar"))
+        surface = str(r.get("Surface")).strip().lower()
+        drainage = bool(r.get("Drainage"))
+        high = bool(r.get("HighFloodRisk"))
+        act_raw = r.get("Activity", "")
+        if isinstance(act_raw, str):
+            activity = [s.strip().lower() for s in act_raw.split(",") if s.strip()]
+        else:
+            activity = [str(s).strip().lower() for s in act_raw or []]
+        design_module = int(r.get("DesignModule"))
+
+        normed.append(
+            DesignRule(
+                lebar=lebar,
+                surface=surface,
+                drainage=drainage,
+                highFloodRisk=high,
+                activity=activity,
+                designModule=design_module,
+            )
+        )
+    return normed
 
 # def score_to_category(score: Optional[float]) -> Optional[str]:
 #     if score is None:
@@ -125,6 +158,69 @@ def estimate_plan(width_m: float, length_m: float, score: Optional[int], overrid
         "days_clean": days_clean,
         "total_days": total_days,
     }
+
+def activities_overlap(wanted: Iterable[str] | None, rule_acts: Iterable[str]) -> bool:
+    if not wanted:
+        return True
+    want = {w.strip().lower() for w in wanted if str(w).strip()}
+    have = set(rule_acts)
+    return not want.isdisjoint(have)
+
+def choose_rule(req) -> tuple[DesignRule, str, Dict[str, str]]:
+    rows = load_matrix()
+
+    dbg: Dict[str, str] = {}
+    if req.highFloodRisk is not None:
+        high = bool(req.highFloodRisk)
+        dbg["riskFlag"] = f"bool:{high}"
+    else:
+        high = None  # allow matching without risk dimension
+
+    # 1) exact (all dims + activity overlap)
+    exact = [
+        r for r in rows
+        if float(r.lebar) == float(req.lebar)
+        and r.surface == req.surface
+        and r.drainage == req.drainage
+        and (high is None or r.highFloodRisk == high)
+        and activities_overlap(req.activity, r.activity)
+    ]
+    if exact:
+        return exact[0], "exact", dbg
+
+    # 2) ignore activity but keep risk flag (if provided)
+    if high is not None:
+        same_risk = [
+            r for r in rows
+            if float(r.lebar) == float(req.lebar)
+            and r.surface == req.surface
+            and r.drainage == req.drainage
+            and r.highFloodRisk == high
+        ]
+        if same_risk:
+            dbg["activityNote"] = "no-overlap; ignored for fallback"
+            return same_risk[0], "fallback-same-risk", dbg
+
+    # 3) ignore risk too
+    any_risk = [
+        r for r in rows
+        if float(r.lebar) == float(req.lebar)
+        and r.surface == req.surface
+        and r.drainage == req.drainage
+    ]
+    if any_risk:
+        dbg["riskNote"] = "no-risk-match; fell back to any"
+        return any_risk[0], "fallback-any-risk", dbg
+
+    # 4) relax width to nearest while keeping surface+drainage
+    candidates = [r for r in rows if r.surface == req.surface and r.drainage == req.drainage]
+    if candidates:
+        best = min(candidates, key=lambda r: abs(float(r.lebar) - float(req.lebar)))
+        dbg["widthNote"] = f"no-exact-width; chose nearest {best.lebar}"
+        return best, "fallback-any-risk", dbg
+
+    # last resort
+    return rows[0], "fallback-any-risk", {"warning": "no structural match; returned first"}
 
 # ---------- PDF generator ----------
 def build_guidebook_pdf(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import Any, Dict, Optional
-from pydantic import BaseModel
+from typing import Literal, List, Any, Dict, Optional
+from pydantic import BaseModel, Field
 
 
 class Settings(BaseModel):
@@ -15,7 +15,6 @@ class RiskByNameResponse(BaseModel):
     score: Optional[int] = None
     # category: Optional[str] = None
     properties: Dict[str, Any] = {}
-
 class GuidebookParams(BaseModel):
     kelurahan: str
     width_m: float
@@ -26,3 +25,26 @@ class GuidebookParams(BaseModel):
     unit_cost_drain_clean_idr_m: Optional[int] = None
     crew_prod_paving_m2_per_day: Optional[int] = None
     crew_prod_drain_m_per_day: Optional[int] = None
+
+Surface = Literal["beton", "aspal", "tanah"]
+
+class DesignRule(BaseModel):
+    lebar: float
+    surface: Surface                  # "beton" | "aspal" | "tanah"
+    drainage: bool                    # true | false
+    highFloodRisk: bool               # true -> risk score 3-5; false -> 1-2
+    activity: List[str]               # normalized list, e.g. ["anak","orang",...]
+    designModule: int                 # 1, 2, ...
+
+class DesignRequest(BaseModel):
+    lebar: float
+    surface: Surface
+    drainage: bool
+    highFloodRisk: bool
+    activity: List[str]
+
+class DesignResponse(BaseModel):
+    designModule: int
+    matchedRule: DesignRule
+    matchedBy: Literal["exact", "fallback-same-risk", "fallback-any-risk"]
+    debug: Dict[str, str] = {}
