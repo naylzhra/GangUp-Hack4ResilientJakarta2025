@@ -1,103 +1,197 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+
+const MAP_PAGE = "/confirm-location"; 
+
+const SLIDES = [
+  { src: "/slides/1.jpg", alt: "Slide 1" },
+  { src: "/slides/2.jpg", alt: "Slide 2" },
+  { src: "/slides/3.jpg", alt: "Slide 3" },
+];
+
+export default function LandingPage() {
+  const router = useRouter();
+
+  // gallery state
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+
+  // permission modal
+  const [askOpen, setAskOpen] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // compute current slide index (based on item width)
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    const step = () => {
+      const item = el.querySelector<HTMLElement>("[data-slide='0']");
+      const itemW = item?.offsetWidth ?? el.clientWidth;
+      const gap = parseInt(getComputedStyle(el).columnGap || "16", 10);
+      const stepSize = itemW + gap;
+      const i = Math.round(el.scrollLeft / stepSize);
+      setIdx(Math.max(0, Math.min(SLIDES.length - 1, i)));
+    };
+
+    const handler = () => requestAnimationFrame(step);
+    el.addEventListener("scroll", handler, { passive: true });
+    step();
+
+    return () => el.removeEventListener("scroll", handler);
+  }, []);
+
+  function onStart() {
+    setErrorMsg(null);
+    setAskOpen(true);
+  }
+
+  function requestLocation() {
+    setRequesting(true);
+    setErrorMsg(null);
+
+    if (!("geolocation" in navigator)) {
+      setRequesting(false);
+      setErrorMsg("Perangkat/browser tidak mendukung geolokasi.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+        const q = new URLSearchParams({
+          lat: String(latitude),
+          lng: String(longitude),
+          acc: String(Math.round(accuracy ?? 0)),
+        }).toString();
+        router.push(`${MAP_PAGE}?${q}`);
+      },
+      (err) => {
+        setRequesting(false);
+        setErrorMsg(
+          err.code === err.PERMISSION_DENIED
+            ? "Izin lokasi ditolak. Anda bisa mengaktifkannya di pengaturan browser."
+            : err.message
+        );
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 }
+    );
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
+        <div className="mx-auto max-w-[420px] px-4 py-4 min-h-dvh flex flex-col">
+            {/* Header */}
+            <header className="flex items-center justify-between">
+            <h1 className="text-2xl font-semibold">
+                <span>Bedah</span><span className="font-extrabold">Gang</span>
+            </h1>
+            <select
+                className="rounded-lg border border-[#364C84]/20 bg-white px-3 py-1 text-xs"
+                defaultValue="id"
+                aria-label="Language"
+            >
+                <option value="id">Bahasa Indonesia</option>
+                <option value="en">English</option>
+            </select>
+            </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <main className="flex flex-1 flex-col items-center justify-center gap-6">
+            {/* Hero text */}
+            <section className="text-center">
+                <p className="text-[18px] font-semibold leading-snug">
+                Kamu bisa memulai perubahan untuk lingkunganmu melalui <span className="font-extrabold">BedahGang</span>!
+                </p>
+                <p className="mt-2 text-sm text-[#465a96]/90">
+                Permasalahan banjir di Jakarta berakar dari berbagai faktor yang kompleks, tetapi
+                <span className="font-semibold"> BedahGang </span>
+                akan membantu kamu memahaminya dan memperbaikinya.
+                </p>
+            </section>
+
+            {/* Gallery */}
+            <section className="w-full flex flex-col items-center">
+                <div
+                ref={trackRef}
+                className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto
+                            touch-pan-x overscroll-x-contain w-full max-w-[360px] mx-auto px-1"
+                style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                {SLIDES.map((s, i) => (
+                    <div key={s.src} data-slide={i} className="snap-center basis-[78%] shrink-0">
+                    <div className="h-48 w-full rounded-2xl border border-[#364C84]/20 bg-white shadow-sm">
+                        <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
+                        {s.alt}
+                        </div>
+                    </div>
+                    </div>
+                ))}
+                </div>
+
+                {/* Dots */}
+                <div className="mt-2 flex items-center justify-center gap-1.5">
+                {SLIDES.map((_, i) => (
+                    <span
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full ${idx === i ? "bg-[#364C84]" : "bg-[#364C84]/30"}`}
+                    />
+                ))}
+                </div>
+            </section>
+
+            {/* Button mulai */}
+            <section className="w-full flex justify-center">
+                <button
+                onClick={onStart}
+                className="w-full max-w-[320px] rounded-full bg-[#E4F28F] py-3 text-sm font-semibold text-[#364C84] shadow-sm hover:brightness-105 active:brightness-95"
+                >
+                Mulai <span className="font-extrabold">BedahGang</span>!
+                </button>
+            </section>
+            </main>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+
+
+      {/* Permission */}
+      {askOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-end pb-20">
+          <div className="absolute inset-0 -z-10 bg-black/40 backdrop-blur-sm" onClick={() => setAskOpen(false)} />
+
+          <div className="mx-auto w-full max-w-[420px] px-4">
+            <div className="mx-4 rounded-2xl bg-[#2F4F90] p-4 text-center text-white shadow-xl flex flex-col items-center">
+              <div className="text-sm font-semibold">
+                Izinkan <span className="font-extrabold">BedahGang</span> mengakses lokasi anda?
+              </div>
+
+              {errorMsg && (
+                <div className="mt-2 text-xs text-rose-200">{errorMsg}</div>
+              )}
+
+              <div className="mt-3 flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setAskOpen(false)}
+                  className="rounded-full bg-white/25 px-5 py-2 text-xs font-semibold text-white hover:bg-white/30"
+                  disabled={requesting}
+                >
+                  Tidak
+                </button>
+                <button
+                  onClick={requestLocation}
+                  className="rounded-full bg-[#E4F28F] px-5 py-2 text-xs font-semibold text-[#2F4F90] hover:brightness-110 disabled:opacity-60"
+                  disabled={requesting}
+                >
+                  {requesting ? "Meminta izin…" : "Ya"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
