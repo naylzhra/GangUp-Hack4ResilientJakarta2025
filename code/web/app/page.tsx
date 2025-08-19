@@ -153,6 +153,50 @@ export default function LandingPage() {
                 </button>
             </section>
             </main>
+
+            {/* Section: Tentang BedahGang */}
+            <section className="mt-10 relative overflow-hidden bg-[#F2F8D9] p-5 text-[#364C84]">
+              {/* dekor sederhana */}
+              {/* <div className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rotate-12 rounded-2xl bg-[#E4F28F]" />
+              <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 -rotate-6 rounded-2xl bg-[#D7E6A5]" /> */}
+
+              <h2 className="relative z-10 text-[22px] leading-snug font-semibold">
+                Walaupun kecil dan mudah dilewatkan,{" "}
+                <span className="font-extrabold">sebuah gang menyimpan banyak cerita.</span>
+              </h2>
+
+              <div className="relative z-10 mt-4">
+                <div className="h-40 w-full rounded-md border-2 bg-white shadow-sm">
+                  {/* ganti isi div ini dengan <Image /> atau <video /> jika sudah ada asset */}
+                  <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
+                    Gambar
+                  </div>
+                </div>
+              </div>
+
+              <p className="relative z-10 mt-4 text-xs leading-relaxed">
+                <span className="font-semibold">BedahGang</span> adalah inisiatif yang dimulai dari
+                keinginan untuk menyorot kehidupan yang berada pada dan di antara gang. Hubungan
+                yang dekat dan erat antar masyarakat tetap tumbuh beriringan dengan meningkatnya
+                risiko akan bencana alam.
+              </p>
+
+              <p className="relative z-10 mt-3 text-xs font-semibold">
+                Melalui riset dan desain, kami berupaya menjembatani komunitas menuju kampung
+                yang lebih tangguh dalam menghadapi banjir.
+              </p>
+
+              <div className="relative z-10 mt-5 flex justify-center">
+                <button
+                  onClick={() => router.push("/about")}
+                  className="w-full max-w-[260px] rounded-full bg-black px-6 py-3 text-sm font-semibold text-white shadow-sm hover:brightness-110 active:brightness-90"
+                >
+                  Kenali Bedah<span className="font-extrabold">Gang</span>
+                </button>
+              </div>
+            </section>
+
+
         </div>
 
 
