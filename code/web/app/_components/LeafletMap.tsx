@@ -21,7 +21,7 @@ export default function LeafletMap({
   if (!mounted) return null;
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-full w-full">
       <MapContainer
         className="h-full w-full"
       >

@@ -67,6 +67,7 @@ export default function LandingPage() {
           lng: String(longitude),
           acc: String(Math.round(accuracy ?? 0)),
         }).toString();
+        alert(`Lat: ${latitude}, Lng: ${longitude}, Acc: ±${accuracy}m`);
         router.push(`${MAP_PAGE}?${q}`);
       },
       (err) => {
