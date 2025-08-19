@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Panorama from "../_components/Panorama";
 
 const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
@@ -176,12 +177,13 @@ export default function HasilPage() {
           {/* 3D placeholder */}
           <div className="mt-5 rounded-2xl bg-[#D9D9D9] p-3 shadow-sm">
             <div className="relative grid h-72 w-full place-items-center rounded-xl bg-[#D9D9D9] text-sm text-black/70">
-              3D model
-              <span className="pointer-events-none absolute left-3 top-3 h-[calc(100%-24px)] w-[calc(100%-24px)]">
-                <svg viewBox="0 0 100 100" className="h-full w-full opacity-40">
-                  \
-                </svg>
-              </span>
+              <Panorama
+                src="/panorama/360_mitigation.jpg"
+                fov={75}
+                autorotate={false}   // set true if you want it to spin
+                autorotateSpeed={0.2}
+                className="w-full h-72 rounded-2xl"
+              />
             </div>
           </div>
 
@@ -197,6 +199,7 @@ export default function HasilPage() {
             </a>
           </div>
         </section>
+
       </div>
     </div>
   );
