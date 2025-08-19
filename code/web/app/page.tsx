@@ -173,7 +173,7 @@ export default function LandingPage() {
 
               <div className="mt-3 flex items-center justify-center gap-3">
                 <button
-                  onClick={() => setAskOpen(false)}
+                  onClick={() => { setAskOpen(false); router.push("/input-gang?step=1"); }}
                   className="rounded-full bg-white/25 px-5 py-2 text-xs font-semibold text-white hover:bg-white/30"
                   disabled={requesting}
                 >
