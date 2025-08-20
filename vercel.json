@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "code/api/**/*.py": {
+      "runtime": "python3.11",
+      "includeFiles": [
+        "data/**"
+      ]
+    }
+  }
+}
