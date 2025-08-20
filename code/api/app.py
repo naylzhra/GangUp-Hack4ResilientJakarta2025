@@ -4,10 +4,10 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List
 
-from model import settings, RiskByNameResponse, GuidebookParams
+from model import settings, RiskByNameResponse, GuidebookParams, RABParams
 from fastapi.responses import FileResponse
 from pathlib import Path
-from utils import load_geojson, estimate_plan, build_guidebook_pdf
+from utils import load_geojson, estimate_plan, build_guidebook_pdf, build_rab_pdf
 
 
 from model import DesignRequest, DesignResponse, DesignRule
@@ -93,7 +93,6 @@ def guidebook(payload: GuidebookParams):
     score_raw = props.get("Score")
     score = int(round(float(score_raw))) if score_raw is not None else None
 
-    # Estimation
     overrides = {
         "unit_cost_paving_idr_m2": payload.unit_cost_paving_idr_m2,
         "unit_cost_drain_clean_idr_m": payload.unit_cost_drain_clean_idr_m,
@@ -102,7 +101,6 @@ def guidebook(payload: GuidebookParams):
     }
     est = estimate_plan(payload.width_m, payload.length_m, score, overrides)
 
-    # PDF bytes
     pdf_bytes = build_guidebook_pdf(
         kelurahan=payload.kelurahan,
         project_name=payload.project_name or "Gang Improvement",
@@ -117,6 +115,17 @@ def guidebook(payload: GuidebookParams):
         path=str(out),
         media_type="application/pdf",
         filename=f"Guidebook_{payload.kelurahan.replace(' ','_')}.pdf",
+    )
+
+@app.post(f"{settings.API_PREFIX}/rab")
+def rab_pdf(payload: RABParams):
+    pdf = build_rab_pdf(moduleNum=payload.moduleNum, lebar=payload.lebar, panjang=payload.panjang)
+    out = Path("RAB.pdf")
+    out.write_bytes(pdf)
+    return FileResponse(
+        path=str(out),
+        media_type="application/pdf",
+        filename=f"RAB.pdf",
     )
 
 if __name__ == "__main__":

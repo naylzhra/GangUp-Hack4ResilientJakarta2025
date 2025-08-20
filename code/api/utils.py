@@ -6,6 +6,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Iterable
 from model import DesignRule, Surface
 
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
@@ -302,3 +306,50 @@ def build_guidebook_pdf(
     c.showPage()
     c.save()
     return buf.getvalue()
+
+def build_rab_pdf(moduleNum: int, lebar: float, panjang: float, output_file="rab.pdf"):
+    base_table = [
+        ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Talang Air (125 meter x 100 mm)", "unit", 5, 50000, 250000],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pipa PVC (Diameter 90 mm)", "unit", 0.125, 1500000, 187500],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Tangki Penampung 3000 L", "unit", 0.125, 2000000, 250000],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Kran Air", "unit", 1, 10000, 10000],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Filter 200-200L", "unit", 0.125, 800000, 100000],
+        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pompa 20-40L", "unit", 0.125, 3000000, 375000],
+    ]
+
+    scale_factor = (lebar / 1.5) * (panjang / 5) * moduleNum
+
+    recalculated_table = [base_table[0]]  # headers
+    total_sum = 0
+    for row in base_table[1:]:
+        total_harga = row[5] * scale_factor
+        total_sum += total_harga
+        recalculated_table.append([
+            row[0], row[1], row[2], row[3], f"Rp {row[4]:,}", f"Rp {total_harga:,.0f}"
+        ])
+
+    recalculated_table.append(["", "", "", "", "TOTAL", f"Rp {total_sum:,.0f}"])
+
+    doc = SimpleDocTemplate(output_file, pagesize=A4)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph("<b>Rencana Anggaran Biaya (RAB)</b>", styles['Heading1']))
+    elements.append(Paragraph(f"Lebar Gang: {lebar} m, Panjang Gang: {panjangGang} m, Modul: {moduleNum}", styles['Normal']))
+    elements.append(Spacer(1, 12))
+
+    # Table
+    t = Table(recalculated_table, colWidths=[150, 150, 60, 100, 100, 100])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.grey),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
+        ("FONTNAME", (0,0), (-1,0), "Plus-Jakarta-Bold"),
+        ("GRID", (0,0), (-1,-1), 1, colors.black),
+        ("BACKGROUND", (0,1), (-1,-1), colors.beige),
+    ]))
+    elements.append(t)
+
+    doc.build(elements)
+    return output_file
