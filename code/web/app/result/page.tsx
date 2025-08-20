@@ -395,7 +395,7 @@ export default function HasilPage() {
 
           <div className="mt-4 grid grid-cols-2 gap-3">
             <Link
-              href="/toolkit"
+              href="/solusi"
               className="group rounded-2xl bg-gradient-to-b from-[#A8B8F6] to-[#5977C8] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
             >
               <div className="text-white text-[18px] font-bold leading-tight drop-shadow">
@@ -404,7 +404,7 @@ export default function HasilPage() {
             </Link>
 
             <Link
-              href="/tentang"
+              href="/about"
               className="group rounded-2xl bg-gradient-to-b from-[#89A6E3] to-[#3D5C9A] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
             >
               <div className="text-white text-[18px] font-bold leading-tight drop-shadow">
