@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import Panorama from "../_components/Panorama";
 import { useRainProbNow } from "../_components/RainProb";
 import { SOLUTIONS } from "../_utils/solutions";
+import Link from "next/link";
 
 const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
@@ -280,7 +281,7 @@ export default function HasilPage() {
         </section>
 
         {/* Body (krem) */}
-        <section className="-mt-2 rounded-t-[28px] bg-[#FFFDF5] px-5 pb-10 pt-6">
+        <section className="-mt-2 rounded-[28px] bg-[#FFFDF5] px-5 pb-10 pt-6">
           <p className="mx-auto max-w-[320px] text-center text-[15px]">
             Berdasarkan kondisi Gang-mu, solusi desain yang sesuai adalah
           </p>
@@ -378,7 +379,41 @@ export default function HasilPage() {
             </button>
           </div>
         </section>
+        
+      <section className="mt-8 border bg-gradient-to-b from-[#D7F08C] via-[#A9CC9E] to-[#1F3361] p-4 text-white shadow-lg">
+        <div className="bg-gradient-to-b from-transparent to-black/10 p-4">
+          <h3 className="text-[18px] leading-snug font-semibold">
+            Ingin mempelajari <em>tool kit</em> desain <span className="font-extrabold">BedahGang</span> lainnya?
+          </h3>
 
+          <p className="mt-2 text-[12.5px] leading-relaxed text-white/90">
+            Inisiatif ini dimulai dengan riset dan pengolahan data untuk merumuskan strategi desain yang tepat.
+          </p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-white/90">
+            <span className="font-semibold">Setiap desain yang kami tawarkan hanyalah salah satu dari banyak kemungkinan</span> yang dapat diwujudkan di gang‑mu!
+          </p>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Link
+              href="/toolkit"
+              className="group rounded-2xl bg-gradient-to-b from-[#A8B8F6] to-[#5977C8] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+            >
+              <div className="text-white text-[18px] font-bold leading-tight drop-shadow">
+                Pelajari<br/><span className="italic font-semibold">Tool Kit</span>
+              </div>
+            </Link>
+
+            <Link
+              href="/tentang"
+              className="group rounded-2xl bg-gradient-to-b from-[#89A6E3] to-[#3D5C9A] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+            >
+              <div className="text-white text-[18px] font-bold leading-tight drop-shadow">
+                Kenali<br/><span className="font-extrabold">BedahGang</span>
+              </div>
+            </Link>
+          </div>
+        </div>  
+      </section>          
       </div>
     </div>
   );
