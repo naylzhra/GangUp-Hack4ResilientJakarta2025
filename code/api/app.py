@@ -39,7 +39,7 @@ def health():
 def risk_by_name(kelurahan: str = Query(..., description="exact kelurahan display name")):
     feat = _IDX.get_by_kelurahan(kelurahan)
     if not feat:
-        raise HTTPException(status_code=404, detail="Kelurahan not found")
+        return RiskByNameResponse(kelurahan=kelurahan, score=0, properties={})
     props = feat.get("properties", {}) or {}
     score = props.get("Score")
     # category = score_to_category(score)

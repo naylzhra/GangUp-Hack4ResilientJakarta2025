@@ -12,7 +12,7 @@ settings = Settings()
 
 class RiskByNameResponse(BaseModel):
     kelurahan: str
-    score: Optional[int] = None
+    score: int = None
     # category: Optional[str] = None
     properties: Dict[str, Any] = {}
 class GuidebookParams(BaseModel):
