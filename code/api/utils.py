@@ -307,49 +307,149 @@ def build_guidebook_pdf(
     c.save()
     return buf.getvalue()
 
-def build_rab_pdf(moduleNum: int, lebar: float, panjang: float, output_file="rab.pdf"):
-    base_table = [
-        ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Talang Air (125 meter x 100 mm)", "unit", 5, 50000, 250000],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pipa PVC (Diameter 90 mm)", "unit", 0.125, 1500000, 187500],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Tangki Penampung 3000 L", "unit", 0.125, 2000000, 250000],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Kran Air", "unit", 1, 10000, 10000],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Filter 200-200L", "unit", 0.125, 800000, 100000],
-        ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pompa 20-40L", "unit", 0.125, 3000000, 375000],
-    ]
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import mm
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import io
 
-    scale_factor = (lebar / 1.5) * (panjang / 5) * moduleNum
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import mm
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import io
 
-    recalculated_table = [base_table[0]]  # headers
-    total_sum = 0
-    for row in base_table[1:]:
-        total_harga = row[5] * scale_factor
-        total_sum += total_harga
-        recalculated_table.append([
-            row[0], row[1], row[2], row[3], f"Rp {row[4]:,}", f"Rp {total_harga:,.0f}"
-        ])
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import mm
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+import io
 
-    recalculated_table.append(["", "", "", "", "TOTAL", f"Rp {total_sum:,.0f}"])
+def build_rab_pdf(*, moduleNum: int, lebar: float, panjang: float) -> bytes:
+    """
+    Build RAB PDF (landscape).
+      1 -> Community Rainwater Harvesting (3000 L, for 8 modules)
+      2 -> Infiltration Tank
+      3 -> Mitigation (Signage)
+      4 -> Vertical Garden
+      5 -> Permeable Paving + Drainage
 
-    doc = SimpleDocTemplate(output_file, pagesize=A4)
+    Totals are scaled by (lebar/1.5)*(panjang/5)*moduleNum.
+    """
+    MODULE_NAME = {
+        1: "Permeable Paving + Drainage",
+        2: "Infiltration Tank",
+        3: "Mitigation (Signage)",
+        4: "Community Rainwater Harvesting",
+        5: "Vertical Garden"
+
+    }
+    TABLES = {
+        1: [
+            ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+            ["Permeable Paving + Drainage", "Grass Block",               "m2",  60,   30_000, 1800_000],
+            ["Permeable Paving + Drainage", "Pasir urug",                "m3",   0.5,  300_000,  150_000],
+            ["Permeable Paving + Drainage", "U ditch (1x0.4) + Cover",   "unit", 5,  400_000,  2_000_000],
+            ["Permeable Paving + Drainage", "Pipa drainage",             "m",    5,   60_000,  300_000],
+        ],
+        2: [
+            ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+            ["Infiltration Tank", "Beton pracetak",  "m3",  1,    800_000,  800_000],
+            ["Infiltration Tank", "Pipa perforasi",  "m",   5,     70_000,  350_000],
+            ["Infiltration Tank", "Pasir + kerikil", "m3",  0.5,  350_000,  175_000],
+            ["Infiltration Tank", "Geotekstil",      "m2",  5,    150_000,  750_000],
+        ],
+        3: [
+            ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+            ["Mitigation (Signage)", "GRC (20×240 cm tebal 6 mm)", "m2",  5,     60_000, 300_000],
+            ["Mitigation (Signage)", "Cat",                        "m2",  0.1,   85_000,   8_500],
+            ["Mitigation (Signage)", "Paku",                       "kg",  0.5,   15_000,   7_500],
+        ],
+        4: [
+            ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Talang Air (125 meter x 100 mm)", "unit", 5,       50_000,   250_000],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pipa PVC (Diameter 90 mm)",       "unit", 5, 50_000, 250_000],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Tangki Penampung 3000 L",         "unit", 0.125, 1_500_000, 187_500],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Kran Air",                         "unit", 0.5,        20_000,   10_000],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Filter 200-200L",                  "unit", 0.125,   800_000,  100_000],
+            ["Community Rainwater Harvesting (3000 L, for 8 modules)", "Pompa 20-40L",                     "unit", 0.125, 3_000_000,  375_000],
+        ],
+        5: [
+            ["Solusi", "Material", "Satuan", "Volume per modul (15m)", "Harga Satuan (Rp)", "Total Harga (Rp)"],
+            ["Vertical Garden", "Wire Grid Wall",        "m2",  5,   300_000, 1_500_000],
+            ["Vertical Garden", "Pot tanaman modular",  "unit", 2,   250_000,   500_000],
+            ["Vertical Garden", "Media tanam + tanaman","m2",  2,   100_000,   200_000],
+        ],
+    }
+
+    if moduleNum not in TABLES:
+        raise ValueError(f"Unknown moduleNum: {moduleNum}. Expected 1..5")
+
+    base_table = TABLES[moduleNum]
+
+    def rupiah(n: float) -> str:
+        return f"Rp {int(round(float(n))):,.0f}".replace(",", ".")
+
+    scale = (lebar / 1) * (panjang / 5.0)
+
     styles = getSampleStyleSheet()
-    elements = []
+    small = ParagraphStyle("small", parent=styles["BodyText"], fontName="Helvetica", fontSize=9, leading=11)
 
-    elements.append(Paragraph("<b>Rencana Anggaran Biaya (RAB)</b>", styles['Heading1']))
-    elements.append(Paragraph(f"Lebar Gang: {lebar} m, Panjang Gang: {panjangGang} m, Modul: {moduleNum}", styles['Normal']))
-    elements.append(Spacer(1, 12))
+    rows = [base_table[0][:]]
+    grand = 0.0
+    for r in base_table[1:]:
+        total_scaled = float(r[5]) * scale
+        grand += r[5]
+        rows.append([
+            Paragraph(str(r[0]), small),
+            Paragraph(str(r[1]), small),
+            r[2],
+            r[3],
+            rupiah(r[4]),
+            rupiah(r[5]),
+        ])
+    rows.append(["", "", "", "", "TOTAL", rupiah(grand)])
+    rows.append(["", "", "", "", f"TOTAL ({lebar}m x {panjang}m)", rupiah(grand*scale)])
 
-    # Table
-    t = Table(recalculated_table, colWidths=[150, 150, 60, 100, 100, 100])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.grey),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.whitesmoke),
-        ("ALIGN", (0,0), (-1,-1), "CENTER"),
-        ("FONTNAME", (0,0), (-1,0), "Plus-Jakarta-Bold"),
-        ("GRID", (0,0), (-1,-1), 1, colors.black),
-        ("BACKGROUND", (0,1), (-1,-1), colors.beige),
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buf,
+        pagesize=landscape(A4),
+        leftMargin=15*mm, rightMargin=15*mm, topMargin=14*mm, bottomMargin=14*mm,
+    )
+    page_w, _ = landscape(A4)
+    avail = page_w - doc.leftMargin - doc.rightMargin
+    col_widths = [0.26*avail, 0.30*avail, 0.08*avail, 0.14*avail, 0.11*avail, 0.11*avail]
+
+    title = "Rencana Anggaran Biaya (RAB)"
+    subtitle = f"Lebar Gang: {lebar:g} m   Panjang Gang: {panjang:g} m"
+    namaModul = f"Modul: {MODULE_NAME[moduleNum]}"
+    table = Table(rows, colWidths=col_widths, repeatRows=1)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#3A54A0")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("FONTSIZE", (0,0), (-1,0), 10),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("ALIGN", (2,1), (2,-2), "CENTER"),
+        ("ALIGN", (3,1), (3,-2), "RIGHT"),
+        ("ALIGN", (4,1), (5,-1), "RIGHT"),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("BACKGROUND", (0,-1), (-1,-1), colors.HexColor("#E4F28F")),
+        ("FONTNAME", (4,-1), (5,-1), "Helvetica-Bold"),
+        ("SPAN", (0,-1), (3,-1)),
     ]))
-    elements.append(t)
 
+    elements = [
+        Paragraph(f"<b>{title}</b>", styles["Heading1"]),
+        Paragraph(subtitle, styles["Normal"]),
+        Paragraph(namaModul, styles["Normal"]),
+        Spacer(1, 8),
+        table,
+    ]
     doc.build(elements)
-    return output_file
+    return buf.getvalue()
