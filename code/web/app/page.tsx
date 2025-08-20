@@ -6,16 +6,17 @@ import { useRouter } from "next/navigation";
 const MAP_PAGE = "/confirm-location"; 
 
 const SLIDES = [
-  { src: "/slides/1.jpg", alt: "Slide 1" },
-  { src: "/slides/2.jpg", alt: "Slide 2" },
-  { src: "/slides/3.jpg", alt: "Slide 3" },
+  { src: "/landing-page/1.png", alt: "Slide 1" },
+  { src: "/landing-page/3.png", alt: "Slide 3" },
+  { src: "/landing-page/4.png", alt: "Slide 4" },
+  { src: "/landing-page/5.png", alt: "Slide 5" },
 ];
 
 export default function LandingPage() {
   const router = useRouter();
 
   // gallery state
-  const trackRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null)
   const [idx, setIdx] = useState(0);
 
   // permission modal
@@ -113,7 +114,6 @@ export default function LandingPage() {
                 </p>
             </section>
 
-            {/* Gallery */}
             <section className="w-full flex flex-col items-center">
                 <div
                   ref={trackRef}
@@ -122,14 +122,20 @@ export default function LandingPage() {
                   style={{ WebkitOverflowScrolling: "touch" }}
                   >
                   {SLIDES.map((s, i) => (
-                      <div key={s.src} data-slide={i} className="snap-center basis-[78%] shrink-0">
-                      <div className="h-48 w-full rounded-2xl border border-[#364C84]/20 bg-white shadow-sm">
-                          <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
-                          {s.alt}
-                          </div>
+                      <div
+                        key={s.src}
+                        data-slide={i}
+                        className="snap-center basis-[85%] shrink-0"
+                      >
+                        <div className="h-48 w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#364C84]/20">
+                          <img
+                            src={s.src}
+                            alt={s.alt}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
                       </div>
-                      </div>
-                  ))}
+                    ))}
                 </div>
 
                 {/* Dots */}

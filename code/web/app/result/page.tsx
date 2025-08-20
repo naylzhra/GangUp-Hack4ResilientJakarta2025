@@ -31,6 +31,7 @@ type DesignSolutionResponse = any;
 
 function scoreToCategory(score?: number | null): string {
   if (score == null) return "-";
+  if (score == 0) return "Sangat Rendah";
   if (score <= 2) return "Rendah";
   if (score === 3) return "Sedang";
   if (score === 4) return "Tinggi";
