@@ -100,7 +100,7 @@ export default function LandingPage() {
             </select>
             </header>
 
-            <main className="flex flex-1 flex-col items-center justify-center gap-6">
+            <main className="flex flex-1 flex-col items-center justify-center gap-6 my-25">
             {/* Hero text */}
             <section className="text-center">
                 <p className="text-[18px] font-semibold leading-snug">
@@ -116,20 +116,20 @@ export default function LandingPage() {
             {/* Gallery */}
             <section className="w-full flex flex-col items-center">
                 <div
-                ref={trackRef}
-                className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto
-                            touch-pan-x overscroll-x-contain w-full max-w-[360px] mx-auto px-1"
-                style={{ WebkitOverflowScrolling: "touch" }}
-                >
-                {SLIDES.map((s, i) => (
-                    <div key={s.src} data-slide={i} className="snap-center basis-[78%] shrink-0">
-                    <div className="h-48 w-full rounded-2xl border border-[#364C84]/20 bg-white shadow-sm">
-                        <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
-                        {s.alt}
-                        </div>
-                    </div>
-                    </div>
-                ))}
+                  ref={trackRef}
+                  className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto
+                              touch-pan-x overscroll-x-contain w-full max-w-[360px] mx-auto px-1"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                  >
+                  {SLIDES.map((s, i) => (
+                      <div key={s.src} data-slide={i} className="snap-center basis-[78%] shrink-0">
+                      <div className="h-48 w-full rounded-2xl border border-[#364C84]/20 bg-white shadow-sm">
+                          <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
+                          {s.alt}
+                          </div>
+                      </div>
+                      </div>
+                  ))}
                 </div>
 
                 {/* Dots */}

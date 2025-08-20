@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Panorama from "../_components/Panorama";
 
 const STORAGE_KEY = "bedahgang";
@@ -21,10 +21,13 @@ type SavedPayload = {
     kabupatenKota: string;
   };
   lebar: number;
+  panjang: number;
   permukaan: string;
   drainase: string;
   aktivitas: string[];
 };
+
+type DesignSolutionResponse = any;
 
 function scoreToCategory(score?: number | null): string {
   if (score == null) return "-";
@@ -34,7 +37,16 @@ function scoreToCategory(score?: number | null): string {
   return "Sangat Tinggi";
 }
 
+function boolFromString(x?: string | null) {
+  if (!x) return false;
+  return true;
+}
+
 export default function HasilPage() {
+  // gallery state
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+
   const [saved, setSaved] = useState<SavedPayload | null>(null);
   useEffect(() => {
     try {
@@ -64,6 +76,9 @@ export default function HasilPage() {
 
   // Remote data
   const [risk, setRisk] = useState<RiskResponse | null>(null);
+  const [design, setDesign] = useState<DesignSolutionResponse | null>(null);
+  const [designErr, setDesignErr] = useState<string | null>(null);
+  const [designLoading, setDesignLoading] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -84,6 +99,46 @@ export default function HasilPage() {
       alive = false;
     };
   }, [kelurahan]);
+
+  useEffect(() => {
+    if (!saved) return;
+
+    const lebar = saved.lebar ?? 0;
+    const surface = saved.permukaan || "";
+    const drainage = boolFromString(saved.drainase);        
+    const activity = (saved.aktivitas ?? []).filter(Boolean);
+
+    const highFloodRisk = (risk?.score ?? 0) >= 4;
+
+    const qs = new URLSearchParams();
+    qs.set("lebar", String(lebar));
+    qs.set("surface", surface);
+    qs.set("drainage", String(drainage));
+    qs.set("highFloodRisk", String(highFloodRisk));
+    qs.set("activity", activity.join(",")); 
+
+    let alive = true;
+    (async () => {
+      try {
+        setDesignLoading(true);
+        setDesignErr(null);
+        const res = await fetch(`/api/design-solution?${qs.toString()}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
+        const json = (await res.json()) as DesignSolutionResponse;
+        if (alive) setDesign(json);
+      } catch (e: any) {
+        if (alive) setDesignErr(e?.message ?? "Gagal memuat solusi desain");
+      } finally {
+        if (alive) setDesignLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [saved, risk]);
 
   const onDownloadPdf = async () => {
     try {
@@ -109,6 +164,19 @@ export default function HasilPage() {
       alert(e?.message ?? "Gagal mengunduh PDF");
     }
   };
+
+  const basePath = useMemo(() => {
+    const folder = design?.designModule;
+    return `${folder}`;
+  }, [design]);
+
+  const SLIDES = useMemo(
+    () => [
+      { src: `${basePath}/2d-1.png`, alt: "Gambar Potongan" },
+      { src: `${basePath}/2d-2.png`, alt: "Gambar Denah" },
+    ],
+    [basePath]
+  );
 
   return (
     <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
@@ -137,7 +205,7 @@ export default function HasilPage() {
 
             <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
               <div className="text-xs text-[#6F7BA6]">Risiko Banjir</div>
-              <div className="mt-1 text-3xl font-extrabold text-[#2E4270]">
+              <div className="mt-1 text-2xl font-extrabold text-[#2E4270]">
                 {scoreToCategory(risk?.score)}
               </div>
               <div className="mt-1 text-[11px] text-[#6F7BA6]">Baca lebih jauh ▾</div>
@@ -154,18 +222,47 @@ export default function HasilPage() {
             Modul Desain #1
           </h2>
 
-          {/* 2D placeholder */}
-          <div className="mt-5 rounded-2xl bg-[#D9D9D9] p-3 shadow-sm">
-            <div className="relative grid h-44 w-full place-items-center rounded-xl bg-[#D9D9D9] text-sm text-black/70">
-              2D design
-              {/* optional diagonal marks */}
-              <span className="pointer-events-none absolute left-3 top-3 h-[calc(100%-24px)] w-[calc(100%-24px)]">
-                <svg viewBox="0 0 100 100" className="h-full w-full opacity-40">
+          {designLoading && (
+            <div className="mt-3 text-center text-sm text-[#6F7BA6]">Memuat solusi desain…</div>
+          )}
+          {designErr && (
+            <div className="mt-3 text-center text-sm text-rose-600">{designErr}</div>
+          )}
 
-                </svg>
-              </span>
-            </div>
-          </div>
+          <section className="w-full flex flex-col items-center">
+                <div
+                  ref={trackRef}
+                  className="scrollbar-none flex snap-x snap-mandatory gap-4 overflow-x-auto
+                              touch-pan-x overscroll-x-contain w-full max-w-[360px] mx-auto px-1"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                  >
+                  {SLIDES.map((s, i) => (
+                      <div
+                        key={s.src}
+                        data-slide={i}
+                        className="snap-center basis-[78%] shrink-0"
+                      >
+                        <div className="h-40 w-80 rounded-2xl border border-[#364C84]/20 bg-white shadow-sm overflow-hidden">
+                          <img
+                            src={s.src}
+                            alt={s.alt}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                {/* Dots */}
+                <div className="mt-2 flex items-center justify-center gap-1.5">
+                {SLIDES.map((_, i) => (
+                    <span
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full ${idx === i ? "bg-[#364C84]" : "bg-[#364C84]/30"}`}
+                    />
+                ))}
+                </div>
+            </section>
 
           {/* Description + Read more */}
           <ReadMore className="mx-auto mt-3 max-w-[340px] text-center text-[13px] text-black">
@@ -174,13 +271,12 @@ export default function HasilPage() {
             Nulla vitae elit libero, a pharetra augue. Donec id elit non mi porta gravida at eget metus.
           </ReadMore>
 
-          {/* 3D placeholder */}
           <div className="mt-5 rounded-2xl bg-[#D9D9D9] p-3 shadow-sm">
             <div className="relative grid h-72 w-full place-items-center rounded-xl bg-[#D9D9D9] text-sm text-black/70">
               <Panorama
-                src="/panorama/360_mitigation.jpg"
+                src= {`${basePath}/panorama.jpg`}
                 fov={75}
-                autorotate={false}   // set true if you want it to spin
+                autorotate={false}   
                 autorotateSpeed={0.2}
                 className="w-full h-72 rounded-2xl"
               />
