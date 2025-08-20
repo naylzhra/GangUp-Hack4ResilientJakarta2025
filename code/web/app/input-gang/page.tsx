@@ -32,7 +32,8 @@ const MOCK_DATA: PageData = {
 type Permukaan = "beton" | "aspal" | "tanah";
 type Drainase = "ada" | "tidak ada";
 const LEBAR_OPTS = [1, 1.5, 2, 2.5] as const;
-const AKTIVITAS = ["sosial", "komersial", "anak", "kendaraan", "orang", "campuran"] as const;
+const PANJANG_OPTS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] as const;
+const AKTIVITAS = ["Aktivitas Sosial", "Aktivitas Komersial", "Jalur Kendaraan", "Jalur Pejalan Kaki"] as const;
 import { useDkiOptions } from "../_utils/read_kelurahan"; 
 
 
@@ -97,6 +98,7 @@ export default function BedahGangPage() {
   }, [step]);
 
   const [lebarIdx, setLebarIdx] = useState(0);
+  const [panjangIdx, setPanjangIdx] = useState(0);
   const [permukaan, setPermukaan] = useState<Permukaan>("beton");
   const [drainase, setDrainase] = useState<Drainase>("tidak ada");
   const [aktivitas, setAktivitas] = useState<Set<string>>(new Set());
@@ -123,6 +125,29 @@ export default function BedahGangPage() {
     if (Array.isArray(saved.aktivitas))
       setAktivitas(new Set<string>(saved.aktivitas));
   }, []);
+
+    const panjangLabel = useMemo(() => `${PANJANG_OPTS[panjangIdx].toFixed(1)} m`, [panjangIdx]);
+      useEffect(() => {
+      const saved = loadSession<any>();
+      if (!saved) return;
+
+      if (saved.alamat) {
+        setAddr({
+          alamat: saved.alamat.alamat ?? "",
+          kelurahan: saved.alamat.kelurahan ?? "",
+          kecamatan: saved.alamat.kecamatan ?? "",
+          kabupatenKota: saved.alamat.kabupatenKota ?? "",
+        });
+      }
+      if (typeof saved.panjang === "number") {
+        const idx = PANJANG_OPTS.findIndex((v) => v === saved.panjang);
+        if (idx >= 0) setPanjangIdx(idx);
+      }
+      if (saved.permukaan) setPermukaan(saved.permukaan);
+      if (saved.drainase) setDrainase(saved.drainase);
+      if (Array.isArray(saved.aktivitas))
+        setAktivitas(new Set<string>(saved.aktivitas));
+    }, []);
 
   function toggleAkt(k: string) {
     setAktivitas((prev) => {
@@ -153,6 +178,7 @@ export default function BedahGangPage() {
     const payload = {
       alamat: addr,
       lebar: LEBAR_OPTS[lebarIdx],
+      panjang: PANJANG_OPTS[panjangIdx],
       permukaan,
       drainase,
       aktivitas: Array.from(aktivitas),
@@ -160,7 +186,6 @@ export default function BedahGangPage() {
     saveSession(payload);
     console.log("Final payload =>", payload);
     router.push("/result");
-    // TODO: send to API / navigate to success page
   }
 
   return (
@@ -277,32 +302,63 @@ export default function BedahGangPage() {
 
               <div className="mx-3 mt-3 rounded-2xl bg-[#FFFDF5] px-5 py-5">
                 <form onSubmit={submitDimensi}>
-                  {/* Lebar Gang */}
-                  <label className="mt-1 block text-sm font-medium text-[#2E4270]">
-                    Lebar Gang
-                  </label>
-                  <div className="mt-2 flex items-center gap-3">
-                    <RoundBtn
-                      label="Kurangi lebar"
-                      disabled={lebarIdx === 0}
-                      onClick={() => setLebarIdx((i) => Math.max(i - 1, 0))}
-                    >
-                      –
-                    </RoundBtn>
+                  <div className="mt-2 flex justify-between gap-3">
+                    <div className="flex flex-col">
+                      <label className="mt-1 block text-sm font-medium text-[#2E4270]">
+                        Lebar Gang
+                      </label>
+                      <div className="flex">
+                        <RoundBtn
+                          label="Kurangi lebar"
+                          disabled={lebarIdx === 0}
+                          onClick={() => setLebarIdx((i) => Math.max(i - 1, 0))}
+                        >
+                          –
+                        </RoundBtn>
 
-                    <div className="flex-1 rounded-full border border-[#2E4270]/40 bg-white px-5 py-2 text-center text-sm font-medium text-slate-700">
-                      {lebarLabel}
+                        <div className="flex-1 rounded-full border border-[#2E4270]/40 bg-white px-5 py-2 text-center text-sm font-medium text-slate-700 mx-1">
+                          {lebarLabel}
+                        </div>
+
+                        <RoundBtn
+                          label="Tambah lebar"
+                          disabled={lebarIdx === LEBAR_OPTS.length - 1}
+                          onClick={() =>
+                            setLebarIdx((i) => Math.min(i + 1, LEBAR_OPTS.length - 1))
+                          }
+                        >
+                          +
+                        </RoundBtn>
+                      </div>
                     </div>
+                    <div className="flex flex-col">
+                       <label className="mt-1 block text-sm font-medium text-[#2E4270]">
+                          Panjang Gang
+                        </label>  
+                      <div className="flex">
+                        <RoundBtn
+                          label="Kurangi panjang"
+                          disabled={panjangIdx === 0}
+                          onClick={() => setPanjangIdx((i) => Math.max(i - 1, 0))}
+                        >
+                          –
+                        </RoundBtn>
 
-                    <RoundBtn
-                      label="Tambah lebar"
-                      disabled={lebarIdx === LEBAR_OPTS.length - 1}
-                      onClick={() =>
-                        setLebarIdx((i) => Math.min(i + 1, LEBAR_OPTS.length - 1))
-                      }
-                    >
-                      +
-                    </RoundBtn>
+                        <div className="flex-1 rounded-full border border-[#2E4270]/40 bg-white px-5 py-2 text-center text-sm font-medium text-slate-700 mx-1">
+                          {panjangLabel}
+                        </div>
+
+                        <RoundBtn
+                          label="Tambah panjang"
+                          disabled={panjangIdx === PANJANG_OPTS.length - 1}
+                          onClick={() =>
+                            setPanjangIdx((i) => Math.min(i + 1, PANJANG_OPTS.length - 1))
+                          }
+                        >
+                          +
+                        </RoundBtn>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Dropdowns */}
@@ -324,15 +380,15 @@ export default function BedahGangPage() {
                     value={drainase}
                     onChange={(v) => setDrainase(v as Drainase)}
                     options={[
-                      { label: "Ada", value: "ada" },
-                      { label: "Tidak ada", value: "tidak ada" },
+                      { label: "Ada", value: "true" },
+                      { label: "Tidak ada", value: "" },
                     ]}
                   />
 
                   {/* Aktivitas */}
                   <div className="mt-5">
                     <div className="text-sm font-medium text-[#2E4270]">Aktivitas</div>
-                    <div className="mt-3 grid grid-cols-3 gap-3">
+                    <div className="mt-3 grid grid-cols-2 gap-3">
                       {AKTIVITAS.map((k) => {
                         const active = aktivitas.has(k);
                         return (
