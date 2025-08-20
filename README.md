@@ -41,8 +41,7 @@ Jika port tidak terpakai, website akan dijalankan di http://localhost:3000. CTRL
 
 ## Website Flow
 1. Mulai analisis dengan memperbolehkan BedahGang mengakses lokasi Anda
-<br /><img width="305" height="665" alt="image" src="https://github.com/user-attachments/assets/2c96efa4-2ed7-4005-83e7-798e898f7b95" />
-<img width="310" height="669" alt="image" src="https://github.com/user-attachments/assets/c0e2b9aa-de3b-4580-9917-9850cffdceea" />
+<br /><img width="305" height="665" alt="image" src="https://github.com/user-attachments/assets/2c96efa4-2ed7-4005-83e7-798e898f7b95" /> <img width="310" height="669" alt="image" src="https://github.com/user-attachments/assets/c0e2b9aa-de3b-4580-9917-9850cffdceea" />
 
 <br /> 2. Lokasi Anda akan otomatis terdeteksi. Konfirmasi apakah lokasi yang tertera di website sudah benar
 <br /><img width="308" height="673" alt="image" src="https://github.com/user-attachments/assets/34e0aa59-6b3d-4db8-8fb6-e769b17f544e" />
