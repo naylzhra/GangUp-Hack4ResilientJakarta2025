@@ -178,58 +178,48 @@ export default function HasilPage() {
     try {
       setDownloading(true);
 
-      const moduleNum = design?.designModule ?? 1;
+      const moduleNum = String(design?.designModule ?? "1");
+      const guidebookUrl = `/${encodeURIComponent(moduleNum)}/guidebook.pdf`; // from public/
 
-      const res = await fetch(`/api/guidebook`, {
+      // RAB still generated from API
+      const rabReq = fetch(`/api/rab`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          kelurahan,
-          // pakai nilai yang disimpan; fallback kalau kosong
-          width_m: saved?.lebar ?? 2.5,
-          length_m: saved?.panjang ?? 100,
-          project_name: `BedahGang – Modul ${design?.designModule ?? "-"}`,
+          moduleNum,
+          lebar: saved?.lebar ?? 2.5,
+          panjang: saved?.panjang ?? 100,
         }),
       });
 
-      if (!res.ok) throw new Error(await res.text());
+      const [guidebookRes, rabRes] = await Promise.all([
+        fetch(guidebookUrl, { cache: "no-store" }),
+        rabReq,
+      ]);
 
-      const rabReq = fetch(`/api/rab`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            moduleNum,          
-            lebar: saved?.lebar ?? 2.5,     
-            panjang: saved?.panjang ?? 100,
-          }),
-        });
+      if (!guidebookRes.ok) {
+        const msg = await guidebookRes.text().catch(() => "");
+        throw new Error(`Guidebook not found: ${guidebookRes.status} ${msg}`);
+      }
+      if (!rabRes.ok) {
+        const msg = await rabRes.text();
+        throw new Error(`RAB failed: ${rabRes.status} ${msg}`);
+      }
 
-        const [guidebookRes, rabRes] = await Promise.all([res, rabReq]);
+      const [guidebookBlob, rabBlob] = await Promise.all([
+        guidebookRes.blob(),
+        rabRes.blob(),
+      ]);
 
-        if (!guidebookRes.ok) {
-          const msg = await guidebookRes.text();
-          throw new Error(`Guidebook failed: ${guidebookRes.status} ${msg}`);
-        }
-        if (!rabRes.ok) {
-          const msg = await rabRes.text();
-          throw new Error(`RAB failed: ${rabRes.status} ${msg}`);
-        }
-
-        // Download both PDFs
-        const [guidebookBlob, rabBlob] = await Promise.all([
-          guidebookRes.blob(),
-          rabRes.blob(),
-        ]);
-
-        const dateTag = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-        downloadBlob(
-          guidebookBlob,
-          `Guidebook_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
-        );
-        downloadBlob(
-          rabBlob,
-          `RAB_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
-        );
+      const dateTag = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      downloadBlob(
+        guidebookBlob,
+        `Guidebook_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
+      );
+      downloadBlob(
+        rabBlob,
+        `RAB_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
+      );
     } catch (e: any) {
       alert(e?.message ?? "Gagal mengunduh PDF");
     } finally {
