@@ -1,4 +1,4 @@
-<img width="308" height="664" alt="image" src="https://github.com/user-attachments/assets/f2e11c4c-77c5-4ab4-9789-bf598b760150" />Gang Up - Hack4ResilientJakarta2025
+<img width="308" height="664" alt="image" src="https://github.com/user-attachments/assets/f2e11c4c-77c5-4ab4-9789-bf598b760150" /> <br />Gang Up - Hack4ResilientJakarta2025
 
 # Jalur Air Sosial: A Design Toolkit for Flood-Resilient Kampung Alleys
 ## Overview
@@ -43,24 +43,24 @@ Jika port tidak terpakai, website akan dijalankan di http://localhost:3000. CTRL
 
 ## Website Flow
 1. Mulai analisis dengan memperbolehkan BedahGang mengakses lokasi Anda
-<img width="305" height="665" alt="image" src="https://github.com/user-attachments/assets/2c96efa4-2ed7-4005-83e7-798e898f7b95" />
+<br /><img width="305" height="665" alt="image" src="https://github.com/user-attachments/assets/2c96efa4-2ed7-4005-83e7-798e898f7b95" />
 <img width="310" height="669" alt="image" src="https://github.com/user-attachments/assets/c0e2b9aa-de3b-4580-9917-9850cffdceea" />
 
 <br /> 2. Lokasi Anda akan otomatis terdeteksi. Konfirmasi apakah lokasi yang tertera di website sudah benar
-<img width="308" height="673" alt="image" src="https://github.com/user-attachments/assets/34e0aa59-6b3d-4db8-8fb6-e769b17f544e" />
+<br /><img width="308" height="673" alt="image" src="https://github.com/user-attachments/assets/34e0aa59-6b3d-4db8-8fb6-e769b17f544e" />
 
 <br /> 3. Jika belum, perbaiki alamat Anda secara manual
-<img width="305" height="658" alt="image" src="https://github.com/user-attachments/assets/fb427573-29de-49d2-a5a4-18224dec9237" />
+<br /><img width="305" height="658" alt="image" src="https://github.com/user-attachments/assets/fb427573-29de-49d2-a5a4-18224dec9237" />
 
 <br /> 4. Setelah konfirmasi alamat, masukkan dimensi gang Anda
-<img width="308" height="664" alt="image" src="https://github.com/user-attachments/assets/74f9b0fa-e821-4b75-bf17-c0fe4e647d41" />
+<br /><img width="308" height="664" alt="image" src="https://github.com/user-attachments/assets/74f9b0fa-e821-4b75-bf17-c0fe4e647d41" />
 
 <br /> 5. BedahGang akan memberikan solusi terbaik untuk gang Anda beserta penjelasan dan juga RAB 
-<img width="303" height="664" alt="image" src="https://github.com/user-attachments/assets/c4e76fd7-9c34-4b33-8c26-92a4c5d4e75a" />
+<br /><img width="303" height="664" alt="image" src="https://github.com/user-attachments/assets/c4e76fd7-9c34-4b33-8c26-92a4c5d4e75a" />
 <img width="307" height="669" alt="image" src="https://github.com/user-attachments/assets/1d25c3e0-1a76-43e9-99cc-ecb17ff711d8" />
 
 <br /> 6. Anda juga bisa melihat modul solusi desain lain yang ada di katalog BedahGang
-<img width="302" height="666" alt="image" src="https://github.com/user-attachments/assets/947b92c8-c53a-4acb-99a0-6ec0d79a8ffa" />
+<br /><img width="302" height="666" alt="image" src="https://github.com/user-attachments/assets/947b92c8-c53a-4acb-99a0-6ec0d79a8ffa" />
 <img width="304" height="678" alt="image" src="https://github.com/user-attachments/assets/60181492-0595-4689-933f-bf7e7e979b71" />
 
 
