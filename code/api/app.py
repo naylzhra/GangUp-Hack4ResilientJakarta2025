@@ -118,14 +118,18 @@ def guidebook(payload: GuidebookParams):
     )
 
 @app.post(f"{settings.API_PREFIX}/rab")
-def rab_pdf(payload: RABParams):
-    pdf = build_rab_pdf(moduleNum=payload.moduleNum, lebar=payload.lebar, panjang=payload.panjang)
-    out = Path("RAB.pdf")
-    out.write_bytes(pdf)
+def rab_pdf(payload: RABParams):   # RABParams has: moduleNum, lebar, panjang
+    pdf_bytes = build_rab_pdf(
+        moduleNum=payload.moduleNum,
+        lebar=payload.lebar,
+        panjang=payload.panjang,
+    )
+    out = Path("RAB_temp.pdf")
+    out.write_bytes(pdf_bytes)
     return FileResponse(
         path=str(out),
         media_type="application/pdf",
-        filename=f"RAB.pdf",
+        filename="RAB.pdf",
     )
 
 if __name__ == "__main__":
