@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import Panorama from "../_components/Panorama";
+import { useRainProbNow } from "../_components/RainProb";
 
 const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
@@ -59,7 +60,6 @@ export default function HasilPage() {
   }, []);
 
   const kelurahan = saved?.alamat?.kelurahan?.trim() || DEFAULT_KELURAHAN;
-  const curahHujan = 84;
   const alamat = useMemo(
     () => ({
       line1: saved?.alamat?.alamat?.trim() || "Jl. Melati No. 80",
@@ -179,6 +179,8 @@ export default function HasilPage() {
     [basePath]
   );
 
+  const { probNow, loading } = useRainProbNow(-6.2, 106.8167);
+
   return (
     <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
       <div className="mx-auto max-w-[420px] px-4 py-6">
@@ -199,8 +201,8 @@ export default function HasilPage() {
             <div className="rounded-2xl bg-[#364C84] px-4 py-3 text-white shadow-sm">
               <div className="text-xs opacity-90">Curah Hujan</div>
               <div className="mt-2 text-4xl font-extrabold leading-none">
-                {curahHujan}
-                <span className="align-super text-2xl">%</span>
+                {loading || probNow == null ? "…" : Math.round(probNow)}
+                <span className="align-super text-2xl">mm</span>
               </div>
             </div>
 

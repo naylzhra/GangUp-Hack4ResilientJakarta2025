@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { buildAddressString, geocodeAddress, type AddressParts, type Geo, } from "../_utils/geocode";
+import { useDkiOptions } from "../_utils/read_kelurahan"; 
 
 const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
   ssr: false,
@@ -34,7 +35,25 @@ type Drainase = "ada" | "tidak ada";
 const LEBAR_OPTS = [1, 1.5, 2, 2.5] as const;
 const PANJANG_OPTS = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] as const;
 const AKTIVITAS = ["Aktivitas Sosial", "Aktivitas Komersial", "Jalur Kendaraan", "Jalur Pejalan Kaki"] as const;
-import { useDkiOptions } from "../_utils/read_kelurahan"; 
+const ACTIVITY_CODES = ["sosial", "komersial", "pejalan", "kendaraan"] as const;
+export type ActivityCode = typeof ACTIVITY_CODES[number];
+
+const ACTIVITY_OPTIONS: ReadonlyArray<{ label: string; value: ActivityCode }> = [
+  { label: "Aktivitas Sosial",     value: "sosial" },
+  { label: "Aktivitas Komersial",  value: "komersial" },
+  { label: "Jalur Pejalan Kaki",   value: "pejalan" },
+  { label: "Jalur Kendaraan",      value: "kendaraan" },
+];
+
+const labelToCode: Record<string, ActivityCode> = {
+  "Aktivitas Sosial": "sosial",
+  "Aktivitas Komersial": "komersial",
+  "Jalur Pejalan Kaki": "pejalan",
+  "Jalur Kendaraan": "kendaraan",
+};
+const isActivityCode = (v: any): v is ActivityCode =>
+  typeof v === "string" && (ACTIVITY_CODES as readonly string[]).includes(v);
+
 
 
 function saveSession(payload: any) {
@@ -101,7 +120,7 @@ export default function BedahGangPage() {
   const [panjangIdx, setPanjangIdx] = useState(0);
   const [permukaan, setPermukaan] = useState<Permukaan>("beton");
   const [drainase, setDrainase] = useState<Drainase>("tidak ada");
-  const [aktivitas, setAktivitas] = useState<Set<string>>(new Set());
+  const [aktivitas, setAktivitas] = useState<Set<ActivityCode>>(new Set());
 
   const lebarLabel = useMemo(() => `${LEBAR_OPTS[lebarIdx].toFixed(1)} m`, [lebarIdx]);
     useEffect(() => {
@@ -122,8 +141,12 @@ export default function BedahGangPage() {
     }
     if (saved.permukaan) setPermukaan(saved.permukaan);
     if (saved.drainase) setDrainase(saved.drainase);
-    if (Array.isArray(saved.aktivitas))
-      setAktivitas(new Set<string>(saved.aktivitas));
+    if (Array.isArray(saved.aktivitas)) {
+      const normalized: ActivityCode[] = saved.aktivitas
+        .map((x: string) => (isActivityCode(x) ? x : labelToCode[x]))
+        .filter(Boolean) as ActivityCode[];
+      setAktivitas(new Set<ActivityCode>(normalized));
+    }
   }, []);
 
     const panjangLabel = useMemo(() => `${PANJANG_OPTS[panjangIdx].toFixed(1)} m`, [panjangIdx]);
@@ -145,11 +168,15 @@ export default function BedahGangPage() {
       }
       if (saved.permukaan) setPermukaan(saved.permukaan);
       if (saved.drainase) setDrainase(saved.drainase);
-      if (Array.isArray(saved.aktivitas))
-        setAktivitas(new Set<string>(saved.aktivitas));
+      if (Array.isArray(saved.aktivitas)) {
+        const normalized: ActivityCode[] = saved.aktivitas
+          .map((x: string) => (isActivityCode(x) ? x : labelToCode[x]))
+          .filter(Boolean) as ActivityCode[];
+        setAktivitas(new Set<ActivityCode>(normalized));
+      }
     }, []);
 
-  function toggleAkt(k: string) {
+  function toggleAkt(k: ActivityCode) {
     setAktivitas((prev) => {
       const next = new Set(prev);
       next.has(k) ? next.delete(k) : next.add(k);
@@ -389,13 +416,13 @@ export default function BedahGangPage() {
                   <div className="mt-5">
                     <div className="text-sm font-medium text-[#2E4270]">Aktivitas</div>
                     <div className="mt-3 grid grid-cols-2 gap-3">
-                      {AKTIVITAS.map((k) => {
-                        const active = aktivitas.has(k);
+                      {ACTIVITY_OPTIONS.map((opt) => {
+                        const active = aktivitas.has(opt.value);
                         return (
                           <button
-                            key={k}
+                            key={opt.value}
                             type="button"
-                            onClick={() => toggleAkt(k)}
+                            onClick={() => toggleAkt(opt.value)}
                             className={[
                               "h-20 rounded-xl border text-xs capitalize transition",
                               active
@@ -404,7 +431,7 @@ export default function BedahGangPage() {
                             ].join(" ")}
                             aria-pressed={active}
                           >
-                            {k}
+                            {opt.label}
                           </button>
                         );
                       })}
