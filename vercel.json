@@ -1,6 +1,6 @@
 {
   "functions": {
-    "code/api/**/*.py": {
+    "code/api/*.py": {
       "includeFiles": "data/*.json"
     }
   }
