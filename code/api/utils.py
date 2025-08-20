@@ -14,6 +14,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 import io
+from pathlib import Path
 
 MATRIX_PATH: Path = Path(__file__).resolve().parents[2] / "data" / "design_matrix.json"
 
