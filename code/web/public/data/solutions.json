@@ -1,0 +1,34 @@
+{
+  "solutions": [
+    {
+      "id": 1,
+      "name": "Paving Permeabel + Drainase",
+      "kategori": "Solusi Preventif",
+      "description": "Paving Permeabel dipadukan dengan sistem drainase untuk memastikan air hujan bisa langsung meresap ke tanah, sementara kelebihan air dialirkan ke sungai atau saluran terdekat. Dengan begitu, genangan cepat berkurang dan air tidak menumpuk di jalanan—solusi sederhana tapi efektif untuk mengurangi risiko banjir."
+    },
+    {
+      "id": 2,
+      "name": "Tangki Resapan",
+      "kategori": "Solusi Preventif",
+      "description": "Tangki Resapan adalah tangki bawah tanah yang ditempatkan di area terbuka dengan ukuran memadai. Tangki ini membantu meningkatkan penyerapan air hujan langsung ke dalam tanah, sehingga aliran air berlebih tidak turun ke area yang lebih rendah dan memicu banjir."
+    },
+    {
+      "id": 3,
+      "name": "Papan Tanda",
+      "kategori": "Solusi Mitigatif",
+      "description": "Papan Tanda berfungsi sebagai penanda jalur evakuasi saat banjir terjadi. Dengan petunjuk yang jelas, warga bisa segera menuju fasilitas umum yang berada di area aman, sehingga proses evakuasi lebih cepat, terarah, dan meminimalisasi kepanikan."
+    },
+    {
+      "id": 4,
+      "name": "Pemanen Air Hujan Komunal",
+      "kategori": "Solusi Produktif",
+      "description": "Pemanen Air Hujan Komunal adalah sistem penampungan air hujan bersama yang dirancang untuk memenuhi kebutuhan air bersih warga. Dengan kapasitas 3000 liter, instalasi ini paling efektif ditempatkan di fasilitas umum seperti sekolah atau balai warga, sehingga manfaatnya bisa dirasakan banyak orang sekaligus mengurangi ketergantungan pada pasokan air konvensional."
+    },
+    {
+      "id": 5,
+      "name": "Kebun Vertikal",
+      "kategori": "Solusi Produktif",
+      "description": "Kebun Vertikal menghadirkan ruang hijau produktif di gang yang relatif tenang dan tidak terlalu rawan banjir. Selain mempercantik lingkungan, sistem ini memungkinkan warga menanam sayuran untuk konsumsi sehari-hari, menjadikan gang bukan hanya jalur lalu lintas, tetapi juga sumber pangan lokal."
+    }
+  ]
+}
