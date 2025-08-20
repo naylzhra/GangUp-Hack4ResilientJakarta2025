@@ -26,6 +26,11 @@ class GuidebookParams(BaseModel):
     crew_prod_paving_m2_per_day: Optional[int] = None
     crew_prod_drain_m_per_day: Optional[int] = None
 
+class RABParams(BaseModel):
+    moduleNum: int
+    lebar: float
+    panjang: float
+
 Surface = Literal["beton", "aspal", "tanah"]
 
 class DesignRule(BaseModel):
