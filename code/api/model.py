@@ -33,7 +33,7 @@ class DesignRule(BaseModel):
     surface: Surface                  # "beton" | "aspal" | "tanah"
     drainage: bool                    # true | false
     highFloodRisk: bool               # true -> risk score 3-5; false -> 1-2
-    activity: List[str]               # normalized list, e.g. ["anak","orang",...]
+    activity: bool               # normalized list, e.g. ["anak","orang",...]
     designModule: int                 # 1, 2, ...
 
 class DesignRequest(BaseModel):

@@ -24,11 +24,7 @@ def load_matrix() -> List[DesignRule]:
         surface = str(r.get("Surface")).strip().lower()
         drainage = bool(r.get("Drainage"))
         high = bool(r.get("HighFloodRisk"))
-        act_raw = r.get("Activity", "")
-        if isinstance(act_raw, str):
-            activity = [s.strip().lower() for s in act_raw.split(",") if s.strip()]
-        else:
-            activity = [str(s).strip().lower() for s in act_raw or []]
+        activity = bool(r.get("Activity", ""))
         design_module = int(r.get("DesignModule"))
 
         normed.append(
@@ -168,58 +164,56 @@ def activities_overlap(wanted: Iterable[str] | None, rule_acts: Iterable[str]) -
 
 def choose_rule(req) -> tuple[DesignRule, str, Dict[str, str]]:
     rows = load_matrix()
-
     dbg: Dict[str, str] = {}
     if req.highFloodRisk is not None:
         high = bool(req.highFloodRisk)
         dbg["riskFlag"] = f"bool:{high}"
     else:
-        high = None  # allow matching without risk dimension
+        high = None 
 
-    # 1) exact (all dims + activity overlap)
     exact = [
         r for r in rows
         if float(r.lebar) == float(req.lebar)
         and r.surface == req.surface
         and r.drainage == req.drainage
         and (high is None or r.highFloodRisk == high)
-        and activities_overlap(req.activity, r.activity)
+        and r.activity == (("pejalan" in req.activity) or ("kendaraan" in req.activity))
     ]
     if exact:
         return exact[0], "exact", dbg
 
-    # 2) ignore activity but keep risk flag (if provided)
-    if high is not None:
-        same_risk = [
-            r for r in rows
-            if float(r.lebar) == float(req.lebar)
-            and r.surface == req.surface
-            and r.drainage == req.drainage
-            and r.highFloodRisk == high
-        ]
-        if same_risk:
-            dbg["activityNote"] = "no-overlap; ignored for fallback"
-            return same_risk[0], "fallback-same-risk", dbg
 
-    # 3) ignore risk too
-    any_risk = [
-        r for r in rows
-        if float(r.lebar) == float(req.lebar)
-        and r.surface == req.surface
-        and r.drainage == req.drainage
-    ]
-    if any_risk:
-        dbg["riskNote"] = "no-risk-match; fell back to any"
-        return any_risk[0], "fallback-any-risk", dbg
+    # if high is not None:
+    #     same_risk = [
+    #         r for r in rows
+    #         if float(r.lebar) == float(req.lebar)
+    #         and r.surface == req.surface
+    #         and r.drainage == req.drainage
+    #         and r.highFloodRisk == high
+    #     ]
+    #     if same_risk:
+    #         dbg["activityNote"] = "no-overlap; ignored for fallback"
+    #         return same_risk[0], "fallback-same-risk", dbg
 
-    # 4) relax width to nearest while keeping surface+drainage
-    candidates = [r for r in rows if r.surface == req.surface and r.drainage == req.drainage]
-    if candidates:
-        best = min(candidates, key=lambda r: abs(float(r.lebar) - float(req.lebar)))
-        dbg["widthNote"] = f"no-exact-width; chose nearest {best.lebar}"
-        return best, "fallback-any-risk", dbg
+    # # 3) ignore risk too
+    # any_risk = [
+    #     r for r in rows
+    #     if float(r.lebar) == float(req.lebar)
+    #     and r.surface == req.surface
+    #     and r.drainage == req.drainage
+    # ]
+    # if any_risk:
+    #     dbg["riskNote"] = "no-risk-match; fell back to any"
+    #     return any_risk[0], "fallback-any-risk", dbg
 
-    # last resort
+    # # 4) relax width to nearest while keeping surface+drainage
+    # candidates = [r for r in rows if r.surface == req.surface and r.drainage == req.drainage]
+    # if candidates:
+    #     best = min(candidates, key=lambda r: abs(float(r.lebar) - float(req.lebar)))
+    #     dbg["widthNote"] = f"no-exact-width; chose nearest {best.lebar}"
+    #     return best, "fallback-any-risk", dbg
+
+    # # last resort
     return rows[0], "fallback-any-risk", {"warning": "no structural match; returned first"}
 
 # ---------- PDF generator ----------
