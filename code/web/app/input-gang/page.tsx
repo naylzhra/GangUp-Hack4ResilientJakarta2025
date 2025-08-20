@@ -414,7 +414,7 @@ export default function BedahGangPage() {
 
                   {/* Aktivitas */}
                   <div className="mt-5">
-                    <div className="text-sm font-medium text-[#2E4270]">Aktivitas</div>
+                    <div className="text-sm font-medium text-[#2E4270]">Penggunaan Gang</div>
                     <div className="mt-3 grid grid-cols-2 gap-3">
                       {ACTIVITY_OPTIONS.map((opt) => {
                         const active = aktivitas.has(opt.value);

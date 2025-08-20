@@ -32,6 +32,16 @@ type SavedPayload = {
 
 type DesignSolutionResponse = any;
 
+const BASE_PRICE_BY_MODULE: Record<string, number> = {
+  "1": 4_250_000,
+  "2": 2_075_000,
+  "3":   316_000,
+  "4": 1_172_500,
+  "5": 2_200_000,
+};
+
+const formatIDR = (n: number) => `Rp.${Math.round(n).toLocaleString("id-ID")},-`;
+
 function scoreToCategory(score?: number | null): string {
   if (score == null) return "-";
   if (score == 0) return "Sangat Rendah";
@@ -142,6 +152,18 @@ export default function HasilPage() {
       alive = false;
     };
   }, [saved, risk]);
+
+  const estimatedCost = useMemo(() => {
+    const lebar = Number(saved?.lebar ?? 2.5);
+    const panjang = Number(saved?.panjang ?? 100);
+
+    const moduleKey = String(design?.designModule ?? "");
+    const base = BASE_PRICE_BY_MODULE[moduleKey] ?? 0;
+
+    const modulesScale = (lebar * panjang) / 5;
+    return modulesScale * base;
+  }, [saved?.lebar, saved?.panjang, design?.designModule]);
+
 
   const [downloading, setDownloading] = useState(false);
   const downloadBlob = (blob: Blob, filename: string) => {
@@ -273,22 +295,19 @@ export default function HasilPage() {
           <p className="mx-auto max-w-[320px] text-center text-[15px]">
             Berdasarkan kondisi Gang-mu, solusi desain yang sesuai adalah
           </p>
-          <h2 className="mt-2 text-center text-2xl font-extrabold text-[#2E4270]">
-            Modul Desain {design?.designModule}
-          </h2>
-          {design?.designModule == "1" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "1" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
             Permeable Paving + Drainage
           </h3>)}
-          {design?.designModule == "2" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "2" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
             Infiltration Tank
           </h3>)}
-          {design?.designModule == "3" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "3" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
             Mitigation/Signage
           </h3>)}
-          {design?.designModule == "4" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "4" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
             Community Rainwater Harvesting
           </h3>)}
-          {design?.designModule == "5" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "5" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
             Vertical Garden
           </h3>)}
 
@@ -355,7 +374,7 @@ export default function HasilPage() {
             Untuk mewujudkan desain ini pada gang-mu, estimasi biaya yang harus kamu keluarkan adalah sebesar
           </p>
           <p className="mt-6 text-center font-bold text-[20px] text-[#2E4270]">
-            Rp.316.000,-
+            {estimatedCost > 0 ? formatIDR(estimatedCost) : "Rp.316.000,-"}
           </p>
           <p className="mt-6 text-center text-[13px] text-[#2E4270]">
             dengan rincian anggaran, material, dan gambar kerja yang dapat kamu akses melalui tombol di bawah ini!
