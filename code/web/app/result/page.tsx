@@ -141,30 +141,79 @@ export default function HasilPage() {
     };
   }, [saved, risk]);
 
+  const [downloading, setDownloading] = useState(false);
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const onDownloadPdf = async () => {
     try {
+      setDownloading(true);
+      
+      const moduleNum = design?.designModule ?? 1;
+
       const res = await fetch(`/api/guidebook`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kelurahan,
-          width_m: 2.5,
-          length_m: 120,
-          project_name: "BedahGang – Paket 1",
+          // pakai nilai yang disimpan; fallback kalau kosong
+          width_m: saved?.lebar ?? 2.5,
+          length_m: saved?.panjang ?? 100,
+          project_name: `BedahGang – Modul ${design?.designModule ?? "-"}`,
         }),
       });
-      if (!res.ok) throw new Error("Gagal membuat PDF");
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Guidebook_${kelurahan.replace(/\s+/g, "_")}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const rabReq = fetch(`/api/rab`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            moduleNum,          
+            lebar: saved?.lebar ?? 2.5,     
+            panjang: saved?.panjang ?? 100,
+          }),
+        });
+
+        const [guidebookRes, rabRes] = await Promise.all([res, rabReq]);
+
+        if (!guidebookRes.ok) {
+          const msg = await guidebookRes.text();
+          throw new Error(`Guidebook failed: ${guidebookRes.status} ${msg}`);
+        }
+        if (!rabRes.ok) {
+          const msg = await rabRes.text();
+          throw new Error(`RAB failed: ${rabRes.status} ${msg}`);
+        }
+
+        // Download both PDFs
+        const [guidebookBlob, rabBlob] = await Promise.all([
+          guidebookRes.blob(),
+          rabRes.blob(),
+        ]);
+
+        const dateTag = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        downloadBlob(
+          guidebookBlob,
+          `Guidebook_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
+        );
+        downloadBlob(
+          rabBlob,
+          `RAB_${kelurahan.replace(/\s+/g, "_")}_${dateTag}.pdf`
+        );
     } catch (e: any) {
       alert(e?.message ?? "Gagal mengunduh PDF");
+    } finally {
+      setDownloading(false);
     }
   };
+
 
   const basePath = useMemo(() => {
     const folder = design?.designModule;
@@ -180,6 +229,7 @@ export default function HasilPage() {
   );
 
   const { probNow, loading } = useRainProbNow(-6.2, 106.8167);
+  
 
   return (
     <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
@@ -200,9 +250,9 @@ export default function HasilPage() {
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-[#364C84] px-4 py-3 text-white shadow-sm">
               <div className="text-xs opacity-90">Curah Hujan</div>
-              <div className="mt-2 text-4xl font-extrabold leading-none">
-                {loading || probNow == null ? "…" : Math.round(probNow)}
-                <span className="align-super text-2xl">mm</span>
+              <div className="mt-2 grid place-items-center leading-none">
+                <span className="text-4xl font-extrabold tracking-tight">{loading || probNow == null ? "…" : Math.round(probNow)}</span>
+                <span className="-mt-0.5 text-sm font-semibold">mm</span>
               </div>
             </div>
 
@@ -222,8 +272,23 @@ export default function HasilPage() {
             Berdasarkan kondisi Gang-mu, solusi desain yang sesuai adalah
           </p>
           <h2 className="mt-2 text-center text-2xl font-extrabold text-[#2E4270]">
-            Modul Desain #1
+            Modul Desain {design?.designModule}
           </h2>
+          {design?.designModule == "1" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+            Permeable Paving + Drainage
+          </h3>)}
+          {design?.designModule == "2" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+            Infiltration Tank
+          </h3>)}
+          {design?.designModule == "3" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+            Mitigation/Signage
+          </h3>)}
+          {design?.designModule == "4" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+            Community Rainwater Harvesting
+          </h3>)}
+          {design?.designModule == "5" && (<h3 className="mt-2 text-center text-xl font-bold text-[#2E4270]">
+            Vertical Garden
+          </h3>)}
 
           {designLoading && (
             <div className="mt-3 text-center text-sm text-[#6F7BA6]">Memuat solusi desain…</div>
@@ -287,15 +352,22 @@ export default function HasilPage() {
           </div>
 
           <p className="mt-6 text-center text-[13px] text-[#2E4270]">
-            Kamu dapat mengunduh file PDF untuk memahami lebih lanjut!
+            Untuk mewujudkan desain ini pada gang-mu, estimasi biaya yang harus kamu keluarkan adalah sebesar
+          </p>
+          <p className="mt-6 text-center font-bold text-[20px] text-[#2E4270]">
+            Rp.316.000,-
+          </p>
+          <p className="mt-6 text-center text-[13px] text-[#2E4270]">
+            dengan rincian anggaran, material, dan gambar kerja yang dapat kamu akses melalui tombol di bawah ini!
           </p>
           <div className="mt-3 flex justify-center">
-            <a
-              href="#"
-              className="w-60 rounded-full bg-[#2E4270] px-5 py-3 text-center text-sm font-semibold text-white shadow hover:bg-[#273a67] active:scale-[0.99]"
+            <button
+              onClick={onDownloadPdf}
+              disabled={downloading}
+              className="w-60 rounded-full bg-[#2E4270] px-5 py-3 text-sm font-semibold text-white shadow hover:bg-[#273a67] active:scale-[0.99] disabled:opacity-60"
             >
-              Unduh PDF Guidebook
-            </a>
+              {downloading ? "Menyiapkan…" : "Unduh PDF Guidebook"}
+            </button>
           </div>
         </section>
 
