@@ -1,4 +1,4 @@
-Gang Up - hack4resilient
+Gang Up - Hack4ResilientJakarta2025
 
 # Jalur Air Sosial: A Design Toolkit for Flood-Resilient Kampung Alleys
 ## Overview
