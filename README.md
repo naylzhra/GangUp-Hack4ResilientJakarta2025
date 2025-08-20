@@ -1,5 +1,3 @@
-<img width="308" height="664" alt="image" src="https://github.com/user-attachments/assets/f2e11c4c-77c5-4ab4-9789-bf598b760150" /> <br />Gang Up - Hack4ResilientJakarta2025
-
 # Jalur Air Sosial: A Design Toolkit for Flood-Resilient Kampung Alleys
 ## Overview
 This project creates a comprehensive and contextual design tool kits that can be implemented in alleyways, which are prone to direct damages from urban flooding especially that of high flood-risk areas.
