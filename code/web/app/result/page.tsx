@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import Panorama from "../_components/Panorama";
 import { useRainProbNow } from "../_components/RainProb";
+import { SOLUTIONS } from "../_utils/solutions";
 
 const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
@@ -154,7 +155,7 @@ export default function HasilPage() {
   const onDownloadPdf = async () => {
     try {
       setDownloading(true);
-      
+
       const moduleNum = design?.designModule ?? 1;
 
       const res = await fetch(`/api/guidebook`, {
@@ -334,9 +335,7 @@ export default function HasilPage() {
 
           {/* Description + Read more */}
           <ReadMore className="mx-auto mt-3 max-w-[340px] text-center text-[13px] text-black">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna. Etiam porta sem malesuada magna mollis euismod.
-            Nulla vitae elit libero, a pharetra augue. Donec id elit non mi porta gravida at eget metus.
+            {SOLUTIONS[design?.designModule - 1]?.description}
           </ReadMore>
 
           <div className="mt-5 rounded-2xl bg-[#D9D9D9] p-3 shadow-sm">

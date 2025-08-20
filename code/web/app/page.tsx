@@ -68,7 +68,6 @@ export default function LandingPage() {
           lng: String(longitude),
           acc: String(Math.round(accuracy ?? 0)),
         }).toString();
-        alert(`Lat: ${latitude}, Lng: ${longitude}, Acc: ±${accuracy}m`);
         router.push(`${MAP_PAGE}?${q}`);
       },
       (err) => {
@@ -172,12 +171,11 @@ export default function LandingPage() {
               </h2>
 
               <div className="relative z-10 mt-4">
-                <div className="h-40 w-full rounded-md border-2 bg-white shadow-sm">
-                  {/* ganti isi div ini dengan <Image /> atau <video /> jika sudah ada asset */}
-                  <div className="grid h-full w-full place-items-center text-sm text-[#364C84]/50">
-                    Gambar
-                  </div>
-                </div>
+                <img
+                  className="h-full w-full object-cover"
+                  src="/landing-page/2.png"
+                  alt="Deskripsi Gambar"
+                />
               </div>
 
               <p className="relative z-10 mt-4 text-xs leading-relaxed">
