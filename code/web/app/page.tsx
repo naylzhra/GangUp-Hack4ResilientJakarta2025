@@ -126,7 +126,7 @@ export default function LandingPage() {
                         data-slide={i}
                         className="snap-center basis-[85%] shrink-0"
                       >
-                        <div className="h-48 w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#364C84]/20">
+                        <div className="h-48 w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#364C84]/20 border-1">
                           <img
                             src={s.src}
                             alt={s.alt}
@@ -161,11 +161,8 @@ export default function LandingPage() {
 
             {/* Section: Tentang BedahGang */}
             <section className="mt-10 relative overflow-hidden bg-[#F2F8D9] p-5 text-[#364C84]">
-              {/* dekor sederhana */}
-              {/* <div className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rotate-12 rounded-2xl bg-[#E4F28F]" />
-              <div className="pointer-events-none absolute -bottom-10 -right-10 h-32 w-32 -rotate-6 rounded-2xl bg-[#D7E6A5]" /> */}
-
-              <h2 className="relative z-10 text-[22px] leading-snug font-semibold">
+            
+              <h2 className="relative z-10 text-[18px] leading-snug">
                 Walaupun kecil dan mudah dilewatkan,{" "}
                 <span className="font-extrabold">sebuah gang menyimpan banyak cerita.</span>
               </h2>
@@ -185,7 +182,7 @@ export default function LandingPage() {
                 risiko akan bencana alam.
               </p>
 
-              <p className="relative z-10 mt-3 text-xs font-semibold">
+              <p className="relative z-10 mt-3 text-xs ">
                 Melalui riset dan desain, kami berupaya menjembatani komunitas menuju kampung
                 yang lebih tangguh dalam menghadapi banjir.
               </p>

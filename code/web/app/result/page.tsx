@@ -249,13 +249,13 @@ export default function HasilPage() {
     <div className="min-h-dvh bg-[#FFFDF5] text-[#364C84]">
       <div className="mx-auto max-w-[420px] px-4 py-6">
         {/* Top banner (hijau muda) */}
-        <section className="rounded-t-2xl bg-[#E4F28F] px-6 pt-6 pb-5 text-center">
+        <section className="rounded-t-2xl bg-[#E7F1A8] px-6 pt-6 pb-5 text-center">
           <h1 className="text-center text-[20px] font-semibold text-[#364C84]">
             Bedah<span className="text-[20px] font-extrabold">Gang</span>
           </h1>
 
           {/* Alamat pill */}
-          <div className="mt-4 rounded-2xl bg-[#F7F6F2] px-4 py-3 text-[13px] text-[#2E4270] shadow-sm">
+          <div className="mt-4 rounded-2xl bg-[#F7F6F2] px-4 py-3 text-[13px] text-[#364C84] shadow-sm">
             <div className="font-semibold text-[15px] text-black">{alamat.line1}</div>
             <div className="text-[#6F7BA6]">{alamat.line2}</div>
           </div>
@@ -272,7 +272,7 @@ export default function HasilPage() {
 
             <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
               <div className="text-xs text-[#6F7BA6]">Risiko Banjir</div>
-              <div className="mt-1 text-2xl font-extrabold text-[#2E4270]">
+              <div className="mt-1 text-2xl font-extrabold text-[#364C84]">
                 {scoreToCategory(risk?.score)}
               </div>
               <div className="mt-1 text-[11px] text-[#6F7BA6]">Baca lebih jauh ▾</div>
@@ -285,19 +285,19 @@ export default function HasilPage() {
           <p className="mx-auto max-w-[320px] text-center text-[15px]">
             Berdasarkan kondisi Gang-mu, solusi desain yang sesuai adalah
           </p>
-          {design?.designModule == "1" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "1" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#364C84]">
             Permeable Paving + Drainage
           </h3>)}
-          {design?.designModule == "2" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "2" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#364C84]">
             Infiltration Tank
           </h3>)}
-          {design?.designModule == "3" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "3" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#364C84]">
             Mitigation/Signage
           </h3>)}
-          {design?.designModule == "4" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "4" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#364C84]">
             Community Rainwater Harvesting
           </h3>)}
-          {design?.designModule == "5" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#2E4270]">
+          {design?.designModule == "5" && (<h3 className="mt-1 mb-2 text-center text-xl font-bold text-[#364C84]">
             Vertical Garden
           </h3>)}
 
@@ -373,7 +373,7 @@ export default function HasilPage() {
             <button
               onClick={onDownloadPdf}
               disabled={downloading}
-              className="w-60 rounded-full bg-[#2E4270] px-5 py-3 text-sm font-semibold text-white shadow hover:bg-[#273a67] active:scale-[0.99] disabled:opacity-60"
+              className="w-60 rounded-full bg-[#364C84] px-5 py-3 text-sm font-semibold text-white shadow hover:bg-[#273a67] active:scale-[0.99] disabled:opacity-60"
             >
               {downloading ? "Menyiapkan…" : "Unduh PDF Guidebook"}
             </button>
@@ -405,7 +405,7 @@ export default function HasilPage() {
 
             <Link
               href="/about"
-              className="group rounded-2xl bg-gradient-to-b from-[#89A6E3] to-[#3D5C9A] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
+              className="group rounded-2xl bg-gradient-to-b from-[#A8B8F6] to-[#5977C8] p-4 text-left shadow-[0_10px_22px_-8px_rgba(0,0,0,0.45)] ring-1 ring-white/10"
             >
               <div className="text-white text-[18px] font-bold leading-tight drop-shadow">
                 Kenali<br/><span className="font-extrabold">BedahGang</span>
