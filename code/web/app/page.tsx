@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const MAP_PAGE = "/confirm-location"; 
 
@@ -127,10 +128,13 @@ export default function LandingPage() {
                         className="snap-center basis-[85%] shrink-0"
                       >
                         <div className="h-48 w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#364C84]/20 border-1">
-                          <img
+                          <Image
                             src={s.src}
                             alt={s.alt}
+                            width={300}
+                            height={192}
                             className="h-full w-full object-cover"
+                            priority={i === 0 || i === 1}
                           />
                         </div>
                       </div>
