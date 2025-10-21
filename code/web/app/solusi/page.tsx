@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import { SOLUTIONS } from "../_utils/solutions";
+import { Suspense } from 'react';
 
-export default function SolusiListPage() {
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      <SolusiListPage />
+    </Suspense>
+  );
+}
+
+export function SolusiListPage() {
   return (
     <main className="min-h-dvh bg-[#E7F1A8] text-[#364C84]">
       <div className="mx-auto max-w-[420px] px-4 py-6">

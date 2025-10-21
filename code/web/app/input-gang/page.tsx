@@ -5,6 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { buildAddressString, geocodeAddress, type AddressParts, type Geo, } from "../_utils/geocode";
 import { useDkiOptions } from "../_utils/read_kelurahan"; 
+import { Suspense } from 'react';
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      <BedahGangPage />
+    </Suspense>
+  );
+}
 
 const LeafletMap = dynamic(() => import("../_components/LeafletMap"), {
   ssr: false,
@@ -71,7 +80,7 @@ function loadSession<T = any>(): T | null {
   }
 }
 
-export default function BedahGangPage() {
+export function BedahGangPage() {
   const router = useRouter();
   const search = useSearchParams();
 

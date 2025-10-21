@@ -5,8 +5,17 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { SOLUTIONS } from "../../_utils/solutions";
 import Panorama from "../../_components/Panorama";
+import { Suspense } from 'react';
 
-export default function SolusiDetailPage() {
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      <SolusiDetailPage />
+    </Suspense>
+  );
+}
+
+export function SolusiDetailPage() {
   const { id } = useParams<{ id: string }>();
   const numId = Number(id);
 

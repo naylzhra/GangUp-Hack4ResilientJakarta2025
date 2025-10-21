@@ -2,8 +2,22 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from 'react';
 import dynamic from "next/dynamic";
 import type { Address } from "../_utils/types.jsx";
+
+
+
+export default function Page() {
+
+  return (
+    <Suspense fallback={<div>Loading…</div>}>
+      <LocationConfirmPage />
+    </Suspense>
+  );
+}
+
+
 
 const STORAGE_KEY = "bedahgang";
 
@@ -51,7 +65,7 @@ function loadSession<T = { alamat: Address | null; coords: Geo | null }>(): T | 
   }
 }
 
-export default function LocationConfirmPage() {
+export function LocationConfirmPage() {
   const router = useRouter();
   const search = useSearchParams();
 
