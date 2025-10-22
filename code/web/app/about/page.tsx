@@ -34,6 +34,7 @@ export default function AboutPage() {
                 alt="BedahGang Poster"
                 fill
                 className="rounded-xl"
+                priority
               />
             </div>
         </section>

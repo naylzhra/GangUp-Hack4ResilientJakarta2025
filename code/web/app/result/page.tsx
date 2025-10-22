@@ -5,6 +5,7 @@ import Panorama from "../_components/Panorama";
 import { useRainProbNow } from "../_components/RainProb";
 import { SOLUTIONS } from "../_utils/solutions";
 import Link from "next/link";
+import Image from "next/image";
 
 const STORAGE_KEY = "bedahgang";
 const DEFAULT_KELURAHAN = "Duren Sawit";
@@ -322,6 +323,14 @@ export default function HasilPage() {
                         className="snap-center basis-[78%] shrink-0"
                       >
                         <div className="h-40 w-80 rounded-2xl border border-[#364C84]/20 bg-white shadow-sm overflow-hidden">
+                          <Image
+                            src={s.src}
+                            alt={s.alt}
+                            width={320}
+                            height={160}
+                            className="h-full w-full object-cover"
+                            priority={i === 0}
+                          />
                           <img
                             src={s.src}
                             alt={s.alt}
